@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Tradhelm – CASSINI Hackathon Project
 
-## Getting Started
+**Tradhelm** is a project developed for the **CASSINI Hackathon: *EU Space for Consumer Experience***, an innovation challenge organized by the European Union.  
+The hackathon invites participants to create new consumer applications using **European space technologies** such as **Copernicus** (Earth observation) and **Galileo** (satellite navigation).  
+Our project falls under the **“Immersive and interactive consumer applications”** challenge.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌍 What is Tradhelm?
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Tradhelm** is a **real-time multiplayer web strategy game** where players start from small villages on different continents and evolve into powerful nations.  
+Each region’s resources are based on **real Copernicus satellite data**, which defines biomes and available natural resources such as water, forests, agriculture, minerals, and energy.  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+No player has access to all resources, forcing **trade, negotiation, and alliances**—or **espionage and sabotage**.  
+Players earn and lose **honor points** based on their actions, shaping a dynamic world of cooperation and deceit.  
+At the end of the match, the player with the most honor points wins.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛰️ How EU Space Technologies Are Used
 
-To learn more about Next.js, take a look at the following resources:
+- **Copernicus** provides Earth observation data to generate realistic biomes and resource distributions.  
+- These datasets make the world dynamic and authentic, connecting virtual strategy to real environmental information.  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This approach turns **European space data** into an **interactive global simulation**, blending **gameplay, education, and environmental awareness**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🎮 Why It Fits the CASSINI Hackathon
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Tradhelm transforms real-world space data into an engaging experience that helps players understand **resource interdependence, sustainability, and geopolitics** through play.  
+It demonstrates how **EU space technologies** can enhance **interactive consumer applications** while promoting environmental insight and strategic thinking.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 👥 Team
+
+- **Eyrian Muet** – Frontend/Backend & Project Manager  
+- **Thimotée Viret** – Backend & Systems Designer  
+- **Enzo Rubagotti** – Frontend & Data Analyst  
+- **Max Lefebvre** – Frontend & Designer
