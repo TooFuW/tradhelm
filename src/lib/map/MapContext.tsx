@@ -43,7 +43,7 @@ const MapDataContext = createContext<Map<string, GeoJSONFC> | undefined>(
     undefined,
 );
 
-// Assure la liaison entre MapLibre et React et expose une API impérative propre.
+// Assure la liaison entre MapLibre et React
 export function MapProvider({ children }: { children: ReactNode }) {
     const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
     const [isReady, setIsReady] = useState(false);
@@ -56,18 +56,12 @@ export function MapProvider({ children }: { children: ReactNode }) {
     const isReadyRef = useRef(false);
     const dataRef = useRef(dataCache);
     const inflightRef = useRef(new Map<string, Promise<GeoJSONFC>>());
-    const pendingSourcesRef = useRef(
-        new Map<string, maplibregl.GeoJSONSourceSpecification>(),
-    );
+    const pendingSourcesRef = useRef(new Map<string, maplibregl.GeoJSONSourceSpecification>(),);
     const pendingLayersRef = useRef<maplibregl.LayerSpecification[]>([]);
-    const pendingEventsRef = useRef<
-        Array<{ event: string; layerId: string; handler: MapEventHandler }>
-    >([]);
+    const pendingEventsRef = useRef<Array<{ event: string; layerId: string; handler: MapEventHandler }>>([]);
     const registeredSourcesRef = useRef(new Set<string>());
     const registeredLayersRef = useRef(new Set<string>());
-    const listenersRef = useRef<
-        Map<string, Map<string, Set<(...args: any[]) => void>>>
-    >(new Map());
+    const listenersRef = useRef<Map<string, Map<string, Set<(...args: any[]) => void>>>>(new Map());
     const detachLoadHandlerRef = useRef<(() => void) | null>(null);
 
     // Suit en permanence la dernière version du cache de données.
@@ -162,7 +156,6 @@ export function MapProvider({ children }: { children: ReactNode }) {
     );
 
     // A la première disponibilité de la carte on rejoue toutes les opérations en attente.
-    // A la première disponibilité de la carte on rejoue toutes les opérations en attente.
     const flushPending = useCallback(
         (map: maplibregl.Map) => {
             pendingSourcesRef.current.forEach((source, id) => {
@@ -193,7 +186,6 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [trackListener],
     );
 
-    // Charge et met en cache les FeatureCollection pour éviter de frapper plusieurs fois l'API.
     // Charge et met en cache les FeatureCollection pour éviter de frapper plusieurs fois l'API.
     const loadGeoJSON = useCallback(
         async (url: string) => {
@@ -381,7 +373,6 @@ export function MapProvider({ children }: { children: ReactNode }) {
     );
 
     // Interface publique pour brancher l'instance MapLibre créée dans l'arbre client.
-    // Interface publique pour brancher l'instance MapLibre créée dans l'arbre client.
     const attachMap = useCallback(
         (instance: maplibregl.Map | null) => {
             if (mapRef.current === instance) {
@@ -430,7 +421,6 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [cleanupMapArtifacts, flushPending],
     );
 
-    // Cleanup global au démontage pour éviter les fuites MapLibre.
     // Cleanup global au démontage pour éviter les fuites MapLibre.
     useEffect(() => {
         return () => {

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapLibreInstance, MapLayerMouseEvent } from "maplibre-gl";
 
 import { useMap } from "../lib/map/MapContext";
-import type { GeoJSONFeature } from "../lib/map/types";
+import { MapOverlay } from "../components/map/MapOverlay";
 import "../styles/map.css";
 
 type MapLibreModule = typeof import("maplibre-gl");
@@ -95,9 +95,6 @@ function MapScene() {
         initializedRef.current = true;
 
         const bootstrapLayers = async () => {
-            await registerSource("countries", "/api/geo/countries");
-            await registerSource("roads", "/api/geo/roads");
-            await registerSource("cities", "/api/geo/cities");
 
             await addLayer({
                 id: "countries-fill",
@@ -151,48 +148,12 @@ function MapScene() {
             map.getCanvas().style.cursor = "";
         };
 
-        // Les clics sur les villes déclenchent un recentrage ou un fit-to-bounds.
-        const handleCityClick = (event: MapLayerMouseEvent) => {
-            const feature = event.features?.[0] as GeoJSONFeature | undefined;
-            if (!feature) {
-                return;
-            }
-
-            const name = feature.properties?.["name"];
-            if (typeof name === "string") {
-                console.info(`Ville sélectionnée: ${name}`);
-            }
-
-            if (
-                Array.isArray(feature.bbox) &&
-                feature.bbox.length === 4 &&
-                feature.bbox.every((value) => typeof value === "number")
-            ) {
-                fitToBounds(feature.bbox as [number, number, number, number]);
-                return;
-            }
-
-            if (
-                feature.geometry.type === "Point" &&
-                Array.isArray(feature.geometry.coordinates)
-            ) {
-                const [lon, lat] = feature.geometry.coordinates as [number, number];
-                map.flyTo({
-                    center: [lon, lat],
-                    zoom: 5,
-                    essential: true,
-                });
-            }
-        };
-
         on("mouseenter", "countries-fill", handleCountryEnter);
         on("mouseleave", "countries-fill", handleCountryLeave);
-        on("click", "cities-circle", handleCityClick);
 
         return () => {
             off("mouseenter", "countries-fill", handleCountryEnter);
             off("mouseleave", "countries-fill", handleCountryLeave);
-            off("click", "cities-circle", handleCityClick);
             map.getCanvas().style.cursor = "";
         };
     }, [isReady, map, on, off, fitToBounds]);
@@ -200,6 +161,7 @@ function MapScene() {
     return (
         <div className="map-root">
             <div ref={containerRef} className="map-canvas" />
+            <MapOverlay />
         </div>
     );
 }
