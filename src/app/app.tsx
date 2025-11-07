@@ -56,6 +56,7 @@ function MapScene() {
                 style: "https://demotiles.maplibre.org/style.json",
                 center: [0, 20],
                 zoom: 2.5,
+                attributionControl: false,
             });
 
             attachMap(mapInstance);
@@ -95,36 +96,17 @@ function MapScene() {
         initializedRef.current = true;
 
         const bootstrapLayers = async () => {
-
-            await addLayer({
-                id: "countries-fill",
-                type: "fill",
-                source: "countries",
-                paint: {
-                    "fill-color": "#218774",
-                    "fill-opacity": 0.4,
-                },
-            });
-
-            await addLayer({
-                id: "roads-line",
-                type: "line",
-                source: "roads",
-                paint: {
-                    "line-color": "#f97316",
-                    "line-width": 2.5,
-                },
-            });
-
-            await addLayer({
-                id: "cities-circle",
-                type: "circle",
-                source: "cities",
-                paint: {
-                    "circle-radius": 5,
-                    "circle-color": "#e11d48",
-                },
-            });
+            //await registerSource("countries", "/api/geo/countries");
+//
+            //await addLayer({
+            //    id: "countries-fill",
+            //    type: "fill",
+            //    source: "countries",
+            //    paint: {
+            //        "fill-color": "#218774",
+            //        "fill-opacity": 0.4,
+            //    },
+            //});
         };
 
         bootstrapLayers().catch((error) => {
