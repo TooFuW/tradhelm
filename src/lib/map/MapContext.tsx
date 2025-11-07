@@ -14,8 +14,10 @@ import type * as maplibregl from "maplibre-gl";
 
 import type { GeoJSONFC } from "./types";
 
+// Standardise les handlers d'événements de couche MapLibre pour le contexte.
 type MapEventHandler = (event: maplibregl.MapLayerMouseEvent) => void;
 
+// Table des capacités exposées par le contexte à l'UI.
 interface MapContextValue {
     map: maplibregl.Map | null;
     isReady: boolean;
@@ -41,6 +43,7 @@ const MapDataContext = createContext<Map<string, GeoJSONFC> | undefined>(
     undefined,
 );
 
+// Assure la liaison entre MapLibre et React et expose une API impérative propre.
 export function MapProvider({ children }: { children: ReactNode }) {
     const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
     const [isReady, setIsReady] = useState(false);
@@ -48,6 +51,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         () => new Map(),
     );
 
+    // Références internes pour piloter MapLibre sans déclencher de re-render React.
     const mapRef = useRef<maplibregl.Map | null>(null);
     const isReadyRef = useRef(false);
     const dataRef = useRef(dataCache);
@@ -66,14 +70,17 @@ export function MapProvider({ children }: { children: ReactNode }) {
     >(new Map());
     const detachLoadHandlerRef = useRef<(() => void) | null>(null);
 
+    // Suit en permanence la dernière version du cache de données.
     useEffect(() => {
         dataRef.current = dataCache;
     }, [dataCache]);
 
+    // Miroir du flag "prêt" à utiliser côté callbacks asynchrones.
     useEffect(() => {
         isReadyRef.current = isReady;
     }, [isReady]);
 
+    // Gestion centralisée des écouteurs pour faciliter l'attache/détache
     const trackListener = useCallback(
         (event: string, layerId: string, handler: (...args: any[]) => void) => {
             let layerMap = listenersRef.current.get(event);
@@ -93,6 +100,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Retire un handler connu du registre maison.
     const untrackListener = useCallback(
         (event: string, layerId: string, handler: (...args: any[]) => void) => {
             const layerMap = listenersRef.current.get(event);
@@ -114,6 +122,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Détache tous les écouteurs enregistrés si la carte disparaît/changée.
     const detachTrackedListeners = useCallback((map: maplibregl.Map | null) => {
         if (!map) return;
 
@@ -128,6 +137,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         listenersRef.current.clear();
     }, []);
 
+    // Supprime proprement tout ce qui a été ajouté par le Provider (layers, sources, events).
     const cleanupMapArtifacts = useCallback(
         (map: maplibregl.Map | null) => {
             if (!map) return;
@@ -151,6 +161,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [detachTrackedListeners],
     );
 
+    // A la première disponibilité de la carte on rejoue toutes les opérations en attente.
+    // A la première disponibilité de la carte on rejoue toutes les opérations en attente.
     const flushPending = useCallback(
         (map: maplibregl.Map) => {
             pendingSourcesRef.current.forEach((source, id) => {
@@ -181,6 +193,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [trackListener],
     );
 
+    // Charge et met en cache les FeatureCollection pour éviter de frapper plusieurs fois l'API.
+    // Charge et met en cache les FeatureCollection pour éviter de frapper plusieurs fois l'API.
     const loadGeoJSON = useCallback(
         async (url: string) => {
             const cached = dataRef.current.get(url);
@@ -228,6 +242,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Ajoute (ou met en file d'attente) une source GeoJSON MapLibre.
     const registerSource = useCallback(
         async (id: string, data: GeoJSONFC | string) => {
             const resolvedData = typeof data === "string" ? await loadGeoJSON(data) : data;
@@ -253,6 +268,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [loadGeoJSON],
     );
 
+    // Ajoute (ou met en file d'attente) une couche MapLibre.
     const addLayer = useCallback(
         async (layer: maplibregl.LayerSpecification) => {
             const map = mapRef.current;
@@ -270,6 +286,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Supprime une couche, qu'elle soit en attente ou déjà montée.
     const removeLayer = useCallback((id: string) => {
         pendingLayersRef.current = pendingLayersRef.current.filter(
             (layer) => layer.id !== id,
@@ -282,6 +299,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         registeredLayersRef.current.delete(id);
     }, []);
 
+    // Supprime une source, même si elle était en attente.
     const removeSource = useCallback((id: string) => {
         pendingSourcesRef.current.delete(id);
 
@@ -292,6 +310,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         registeredSourcesRef.current.delete(id);
     }, []);
 
+    // Encapsule map.fitBounds pour forcer un padding cohérent depuis l'UI.
     const fitToBounds = useCallback(
         (bbox: [number, number, number, number]) => {
             const map = mapRef.current;
@@ -305,6 +324,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Proxy de setFeatureState afin de conserver toute la logique côté contexte.
     const setFeatureState = useCallback(
         (params: {
             source: string;
@@ -325,6 +345,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Ajoute un handler (ou le met en attente si la carte n'est pas chargée).
     const on = useCallback(
         (event: string, layerId: string, handler: MapEventHandler) => {
             const map = mapRef.current;
@@ -339,6 +360,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [trackListener],
     );
 
+    // Retire un handler, qu'il soit déjà attaché ou encore en attente.
     const off = useCallback(
         (event: string, layerId: string, handler: (...args: any[]) => void) => {
             pendingEventsRef.current = pendingEventsRef.current.filter(
@@ -358,6 +380,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [untrackListener],
     );
 
+    // Interface publique pour brancher l'instance MapLibre créée dans l'arbre client.
+    // Interface publique pour brancher l'instance MapLibre créée dans l'arbre client.
     const attachMap = useCallback(
         (instance: maplibregl.Map | null) => {
             if (mapRef.current === instance) {
@@ -406,6 +430,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
         [cleanupMapArtifacts, flushPending],
     );
 
+    // Cleanup global au démontage pour éviter les fuites MapLibre.
+    // Cleanup global au démontage pour éviter les fuites MapLibre.
     useEffect(() => {
         return () => {
             if (detachLoadHandlerRef.current) {
@@ -462,6 +488,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
     );
 }
 
+// Hook pratique pour consommer toutes les capacités Map dans les composants clients.
 export function useMap(): MapContextValue {
     const context = useContext(MapContext);
     if (!context) {
@@ -470,6 +497,7 @@ export function useMap(): MapContextValue {
     return context;
 }
 
+// Hook ne renvoyant que le cache GeoJSON (utile aux UI qui consomment les données).
 export function useMapData(): Map<string, GeoJSONFC> {
     const context = useContext(MapDataContext);
     if (!context) {
