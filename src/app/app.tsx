@@ -16,45 +16,77 @@ async function getMapLibre(): Promise<MapLibreModule> {
     return maplibreCache;
 }
 
-// Génère un hexagone en coordonnées géographiques
-function hexToGeoJSON(q: number, r: number, size: number = 0.5) {
-    const x = size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
-    const y = size * ((3 / 2) * r);
+// Génère une grille de carrés couvrant le monde
+function generateWorldSquareGrid(size: number = 1) {
+    const features = [];
     
-    const angles = [0, 60, 120, 180, 240, 300];
-    const coordinates = angles.map(angle => {
-        const rad = (Math.PI / 180) * angle;
-        return [
-            x + size * Math.cos(rad),
-            y + size * Math.sin(rad),
-        ];
-    });
+    // Couvre le monde de -180 à 180 en longitude et -85 à 85 en latitude
+    const startLat = -85;
+    const endLat = 85;
+    const startLon = -180;
+    const endLon = 180;
     
-    coordinates.push(coordinates[0]); // Fermer le polygone
+    let r = 0;
+    let lat = startLat;
+    
+    while (lat < endLat) {
+        let q = 0;
+        
+        // Calcule la hauteur ajustée pour cette latitude (correction Mercator)
+        // On réduit la hauteur en s'éloignant de l'équateur pour compenser l'étirement visuel
+        const latRad = (lat * Math.PI) / 180;
+        const latHeight = size * Math.cos(latRad);
+        
+        for (let lon = startLon; lon < endLon; lon += size) {
+            const coords = squareCoordinates(lon, lat, size, latHeight);
+            const squareId = `${q},${r}`;
+            
+            features.push({
+                type: "Feature" as const,
+                properties: { id: squareId, q, r },
+                geometry: {
+                    type: "Polygon" as const,
+                    coordinates: [coords],
+                },
+            });
+            
+            q++;
+        }
+        
+        lat += latHeight;
+        r++;
+    }
     
     return {
-        type: "Feature" as const,
-        properties: { q, r, id: `${q},${r}` },
-        geometry: {
-            type: "Polygon" as const,
-            coordinates: [coordinates],
-        },
+        type: "FeatureCollection" as const,
+        features,
     };
+}
+
+// Calcule les coordonnées d'un carré avec correction de la déformation Mercator
+function squareCoordinates(lon: number, lat: number, width: number, height: number) {
+    return [
+        [lon, lat],
+        [lon + width, lat],
+        [lon + width, lat + height],
+        [lon, lat + height],
+        [lon, lat], // Ferme le polygone
+    ];
 }
 
 export default function AppPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
     const {
-        tiles,
-        selectedTile,
-        selectTile,
-        setHoveredTile,
+        squareCache,
+        selectedSquare,
+        hoveredSquareId,
+        selectSquare,
+        setHoveredSquareId,
         fetchGameState,
-        fetchTiles,
     } = useMapContext();
 
-    // Initialisation de la carte
+    // Initialise la carte avec un fond monde
     useEffect(() => {
         if (!containerRef.current || mapRef.current) return;
 
@@ -66,19 +98,8 @@ export default function AppPage() {
 
             const map = new maplibre.Map({
                 container: containerRef.current,
-                //style: {
-                //    version: 8,
-                //    sources: {},
-                //    layers: [
-                //        {
-                //            id: "background",
-                //            type: "background",
-                //            paint: { "background-color": "#1a2332" },
-                //        },
-                //    ],
-                //},
-                style: "https://demotiles.maplibre.org/style.json",
-                center: [0, 0],
+                style: "https://demotiles.maplibre.org/style.json", // Carte du monde OpenStreetMap
+                center: [0, 20],
                 zoom: 2,
                 attributionControl: false,
             });
@@ -87,6 +108,60 @@ export default function AppPage() {
 
             map.on("load", () => {
                 console.log("Carte chargée");
+                
+                // Génère la grille de carrés
+                const squareGrid = generateWorldSquareGrid(1);
+                
+                map.addSource("square-grid", {
+                    type: "geojson",
+                    data: squareGrid,
+                });
+
+                // Couche de remplissage des carrés
+                map.addLayer({
+                    id: "square-fill",
+                    type: "fill",
+                    source: "square-grid",
+                    paint: {
+                        "fill-color": [
+                            "case",
+                            ["boolean", ["feature-state", "selected"], false],
+                            "#FFD700",
+                            ["boolean", ["feature-state", "hovered"], false],
+                            "#4A90E2",
+                            ["boolean", ["feature-state", "loaded"], false],
+                            "#2C5F8D",
+                            "#1a1a1a",
+                        ],
+                        "fill-opacity": [
+                            "case",
+                            ["boolean", ["feature-state", "loaded"], false],
+                            0.6,
+                            0.2,
+                        ],
+                    },
+                });
+
+                // Couche de contour
+                map.addLayer({
+                    id: "square-outline",
+                    type: "line",
+                    source: "square-grid",
+                    paint: {
+                        "line-color": [
+                            "case",
+                            ["boolean", ["feature-state", "loaded"], false],
+                            "#88CCEE",
+                            "#444444",
+                        ],
+                        "line-width": [
+                            "case",
+                            ["boolean", ["feature-state", "selected"], false],
+                            2.5,
+                            0.5,
+                        ],
+                    },
+                });
             });
         })();
 
@@ -99,144 +174,103 @@ export default function AppPage() {
         };
     }, []);
 
-    // Chargement initial des données
+    // Charge l'état initial
     useEffect(() => {
         fetchGameState();
-        fetchTiles();
-    }, [fetchGameState, fetchTiles]);
+    }, [fetchGameState]);
 
-    // Mise à jour de la couche hexagonale
+    // Met à jour l'état visuel des carrés en cache
     useEffect(() => {
         const map = mapRef.current;
-        if (!map || !map.isStyleLoaded() || tiles.size === 0) return;
+        if (!map || !map.getSource("square-grid")) return;
 
-        // Générer le GeoJSON à partir des tuiles
-        const features = Array.from(tiles.values()).map(tile =>
-            hexToGeoJSON(tile.q, tile.r)
-        );
+        squareCache.forEach((square) => {
+            map.setFeatureState(
+                { source: "square-grid", id: square.id },
+                { loaded: true }
+            );
+        });
+    }, [squareCache]);
 
-        const geojson = {
-            type: "FeatureCollection" as const,
-            features,
-        };
-
-        // Ajouter ou mettre à jour la source
-        if (map.getSource("hexagons")) {
-            (map.getSource("hexagons") as any).setData(geojson);
-        } else {
-            map.addSource("hexagons", {
-                type: "geojson",
-                data: geojson,
-            });
-
-            // Couche de remplissage
-            map.addLayer({
-                id: "hexagons-fill",
-                type: "fill",
-                source: "hexagons",
-                paint: {
-                    "fill-color": [
-                        "case",
-                        ["boolean", ["feature-state", "selected"], false],
-                        "#FFD700",
-                        ["boolean", ["feature-state", "hovered"], false],
-                        "#4A90E2",
-                        "#2C5F8D",
-                    ],
-                    "fill-opacity": 0.6,
-                },
-            });
-
-            // Couche de contour
-            map.addLayer({
-                id: "hexagons-outline",
-                type: "line",
-                source: "hexagons",
-                paint: {
-                    "line-color": "#88CCEE",
-                    "line-width": 1.5,
-                },
-            });
-        }
-    }, [tiles]);
-
-    // Gestion de la sélection
+    // Met à jour la sélection
     useEffect(() => {
         const map = mapRef.current;
-        if (!map || !map.getSource("hexagons")) return;
+        if (!map || !map.getSource("square-grid")) return;
 
-        // Réinitialiser tous les états
-        tiles.forEach(tile => {
-            map.removeFeatureState({
-                source: "hexagons",
-                id: tile.id,
-            });
+        // Réinitialise tous les états de sélection
+        map.removeFeatureState({ source: "square-grid" });
+        
+        // Réapplique les carrés chargés
+        squareCache.forEach((square) => {
+            map.setFeatureState(
+                { source: "square-grid", id: square.id },
+                { loaded: true }
+            );
         });
 
-        // Mettre à jour l'état de la tuile sélectionnée
-        if (selectedTile) {
+        // Applique la sélection
+        if (selectedSquare) {
             map.setFeatureState(
-                {
-                    source: "hexagons",
-                    id: selectedTile.id,
-                },
+                { source: "square-grid", id: selectedSquare.id },
                 { selected: true }
             );
         }
-    }, [selectedTile, tiles]);
+    }, [selectedSquare, squareCache]);
 
-    // Gestion des interactions
+    // Gère les interactions
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
 
         const handleClick = (e: any) => {
             const features = map.queryRenderedFeatures(e.point, {
-                layers: ["hexagons-fill"],
+                layers: ["square-fill"],
             });
 
             if (features.length > 0) {
-                const tileId = features[0].properties?.id;
-                selectTile(tileId);
+                const squareId = features[0].properties?.id;
+                selectSquare(squareId);
             } else {
-                selectTile(null);
+                selectSquare(null);
             }
         };
 
         const handleMouseMove = (e: any) => {
             const features = map.queryRenderedFeatures(e.point, {
-                layers: ["hexagons-fill"],
+                layers: ["square-fill"],
             });
 
             const canvas = map.getCanvas();
             
             if (features.length > 0) {
                 canvas.style.cursor = "pointer";
-                const tileId = features[0].properties?.id;
-                setHoveredTile(tileId);
+                const squareId = features[0].properties?.id;
+                setHoveredSquareId(squareId);
                 
                 // État visuel du hover
-                tiles.forEach(tile => {
-                    if (tile.id !== selectedTile?.id) {
-                        map.setFeatureState(
-                            { source: "hexagons", id: tile.id },
-                            { hovered: tile.id === tileId }
-                        );
-                    }
-                });
+                if (squareId !== selectedSquare?.id) {
+                    map.setFeatureState(
+                        { source: "square-grid", id: squareId },
+                        { hovered: true }
+                    );
+                }
+                
+                // Retire le hover des autres
+                if (hoveredSquareId && hoveredSquareId !== squareId && hoveredSquareId !== selectedSquare?.id) {
+                    map.setFeatureState(
+                        { source: "square-grid", id: hoveredSquareId },
+                        { hovered: false }
+                    );
+                }
             } else {
                 canvas.style.cursor = "";
-                setHoveredTile(null);
-                
-                // Réinitialiser le hover
-                tiles.forEach(tile => {
-                    if (tile.id !== selectedTile?.id) {
-                        map.setFeatureState(
-                            { source: "hexagons", id: tile.id },
-                            { hovered: false }
-                        );
-                    }
-                });
+                if (hoveredSquareId && hoveredSquareId !== selectedSquare?.id) {
+                    map.setFeatureState(
+                        { source: "square-grid", id: hoveredSquareId },
+                        { hovered: false }
+                    );
+                }
+                setHoveredSquareId(null);
             }
         };
 
@@ -247,7 +281,7 @@ export default function AppPage() {
             map.off("click", handleClick);
             map.off("mousemove", handleMouseMove);
         };
-    }, [selectTile, setHoveredTile, tiles, selectedTile]);
+    }, [selectSquare, setHoveredSquareId, selectedSquare, hoveredSquareId]);
 
     // Resize handler
     useEffect(() => {

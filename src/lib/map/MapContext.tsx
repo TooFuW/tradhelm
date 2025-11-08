@@ -9,8 +9,7 @@ import {
     type ReactNode,
 } from "react";
 
-// Types
-export interface HexTile {
+export interface SquareTile {
     id: string;
     q: number;
     r: number;
@@ -18,6 +17,7 @@ export interface HexTile {
     terrain: string;
     resources: number;
     units: number;
+    [key: string]: any;
 }
 
 export interface PlayerData {
@@ -42,21 +42,17 @@ export interface GameState {
 }
 
 interface MapContextValue {
-    // État du jeu
     gameState: GameState | null;
     playerData: PlayerData | null;
-    tiles: Map<string, HexTile>;
-    selectedTile: HexTile | null;
     
-    // Actions
-    selectTile: (tileId: string | null) => void;
+    squareCache: Map<string, SquareTile>;
+    selectedSquare: SquareTile | null;
+    hoveredSquareId: string | null;
+    
+    loadSquareData: (squareId: string) => Promise<SquareTile>;
+    selectSquare: (squareId: string | null) => void;
+    setHoveredSquareId: (squareId: string | null) => void;
     fetchGameState: () => Promise<void>;
-    fetchTiles: () => Promise<void>;
-    performAction: (action: string, params: any) => Promise<void>;
-    
-    // Communication map <-> overlay
-    hoveredTile: string | null;
-    setHoveredTile: (tileId: string | null) => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -64,17 +60,79 @@ const MapContext = createContext<MapContextValue | undefined>(undefined);
 export function MapProvider({ children }: { children: ReactNode }) {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerData, setPlayerData] = useState<PlayerData | null>(null);
-    const [tiles, setTiles] = useState<Map<string, HexTile>>(new Map());
-    const [selectedTile, setSelectedTile] = useState<HexTile | null>(null);
-    const [hoveredTile, setHoveredTile] = useState<string | null>(null);
+    const [squareCache, setSquareCache] = useState<Map<string, SquareTile>>(new Map());
+    const [selectedSquare, setSelectedSquare] = useState<SquareTile | null>(null);
+    const [hoveredSquareId, setHoveredSquareId] = useState<string | null>(null);
+    
+    const loadingRef = useState(new Map<string, Promise<SquareTile>>())[0];
 
-    // Récupération de l'état du jeu
+    const loadSquareData = useCallback(async (squareId: string): Promise<SquareTile> => {
+        const cached = squareCache.get(squareId);
+        if (cached) {
+            return cached;
+        }
+
+        const inflight = loadingRef.get(squareId);
+        if (inflight) {
+            return inflight;
+        }
+
+        const promise = (async () => {
+            try {
+                // const response = await fetch(`/api/square/${squareId}`);
+                // const data = await response.json();
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const [q, r] = squareId.split(',').map(Number);
+                const data: SquareTile = {
+                    id: squareId,
+                    q,
+                    r,
+                    owner: Math.random() > 0.7 ? "player1" : null,
+                    terrain: ["plaine", "forêt", "montagne", "eau"][Math.floor(Math.random() * 4)],
+                    resources: Math.floor(Math.random() * 100),
+                    units: Math.floor(Math.random() * 10),
+                };
+                
+                setSquareCache(prev => {
+                    const next = new Map(prev);
+                    next.set(squareId, data);
+                    return next;
+                });
+                
+                loadingRef.delete(squareId);
+                return data;
+            } catch (error) {
+                loadingRef.delete(squareId);
+                console.error(`Erreur chargement carré ${squareId}:`, error);
+                throw error;
+            }
+        })();
+
+        loadingRef.set(squareId, promise);
+        return promise;
+    }, [squareCache, loadingRef]);
+
+    const selectSquare = useCallback(async (squareId: string | null) => {
+        if (!squareId) {
+            setSelectedSquare(null);
+            return;
+        }
+
+        try {
+            const squareData = await loadSquareData(squareId);
+            setSelectedSquare(squareData);
+        } catch (error) {
+            console.error("Erreur sélection carré:", error);
+        }
+    }, [loadSquareData]);
+
+    // Récupère l'état du jeu
     const fetchGameState = useCallback(async () => {
         try {
             // const response = await fetch("/api/game/state");
             // const data = await response.json();
             
-            // Mock data
             const mockState: GameState = {
                 time: new Date().toISOString(),
                 turn: 42,
@@ -97,92 +155,28 @@ export function MapProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Récupération des tuiles
-    const fetchTiles = useCallback(async () => {
-        try {
-            // const response = await fetch("/api/game/tiles");
-            // const data = await response.json();
-            
-            // Mock data
-            const mockTiles = new Map<string, HexTile>();
-            for (let q = -5; q <= 5; q++) {
-                for (let r = -5; r <= 5; r++) {
-                    const id = `${q},${r}`;
-                    mockTiles.set(id, {
-                        id,
-                        q,
-                        r,
-                        owner: Math.random() > 0.7 ? "player1" : null,
-                        terrain: ["plaine", "forêt", "montagne", "eau"][Math.floor(Math.random() * 4)],
-                        resources: Math.floor(Math.random() * 100),
-                        units: Math.floor(Math.random() * 10),
-                    });
-                }
-            }
-            
-            setTiles(mockTiles);
-        } catch (error) {
-            console.error("Erreur fetchTiles:", error);
-        }
-    }, []);
-
-    // Sélection d'une tuile
-    const selectTile = useCallback((tileId: string | null) => {
-        if (!tileId) {
-            setSelectedTile(null);
-            return;
-        }
-        
-        const tile = tiles.get(tileId);
-        if (tile) {
-            setSelectedTile(tile);
-        }
-    }, [tiles]);
-
-    // Action générique (attaque, construction, déplacement, etc.)
-    const performAction = useCallback(async (action: string, params: any) => {
-        try {
-            // const response = await fetch("/api/game/action", {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     body: JSON.stringify({ action, params }),
-            // });
-            // const result = await response.json();
-            
-            console.log("Action:", action, params);
-            
-            // Rafraîchir les données après l'action
-            await fetchGameState();
-            await fetchTiles();
-        } catch (error) {
-            console.error("Erreur performAction:", error);
-        }
-    }, [fetchGameState, fetchTiles]);
-
     const value = useMemo<MapContextValue>(
         () => ({
             gameState,
             playerData,
-            tiles,
-            selectedTile,
-            selectTile,
+            squareCache,
+            selectedSquare,
+            hoveredSquareId,
+            loadSquareData,
+            selectSquare,
+            setHoveredSquareId,
             fetchGameState,
-            fetchTiles,
-            performAction,
-            hoveredTile,
-            setHoveredTile,
         }),
         [
             gameState,
             playerData,
-            tiles,
-            selectedTile,
-            selectTile,
+            squareCache,
+            selectedSquare,
+            hoveredSquareId,
+            loadSquareData,
+            selectSquare,
+            setHoveredSquareId,
             fetchGameState,
-            fetchTiles,
-            performAction,
-            hoveredTile,
-            setHoveredTile,
         ]
     );
 
