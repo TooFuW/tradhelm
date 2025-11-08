@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { Map as MapLibreInstance, MapLayerMouseEvent } from "maplibre-gl";
-
-import { useMap } from "../lib/map/MapContext";
+import { useEffect, useRef, useCallback } from "react";
+import type { Map as MapLibreMap } from "maplibre-gl";
+import { useMapContext } from "../lib/map/MapContext";
 import { MapOverlay } from "../components/map/MapOverlay";
 import "../styles/map.css";
 
@@ -11,134 +10,255 @@ type MapLibreModule = typeof import("maplibre-gl");
 
 let maplibreCache: MapLibreModule | null = null;
 
-// Evite de charger maplibre-gl côté serveur ou plusieurs fois côté client.
 async function getMapLibre(): Promise<MapLibreModule> {
-    if (maplibreCache) {
-        return maplibreCache;
-    }
+    if (maplibreCache) return maplibreCache;
     maplibreCache = await import("maplibre-gl");
     return maplibreCache;
 }
 
-// Encapsule la scène MapLibre et consomme le contexte partagé exposant la carte.
-function MapScene() {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const initializedRef = useRef(false);
-    const {
-        map,
-        attachMap,
-        isReady,
-        registerSource,
-        addLayer,
-        on,
-        off,
-        fitToBounds,
-    } = useMap();
+// Génère un hexagone en coordonnées géographiques
+function hexToGeoJSON(q: number, r: number, size: number = 0.5) {
+    const x = size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
+    const y = size * ((3 / 2) * r);
+    
+    const angles = [0, 60, 120, 180, 240, 300];
+    const coordinates = angles.map(angle => {
+        const rad = (Math.PI / 180) * angle;
+        return [
+            x + size * Math.cos(rad),
+            y + size * Math.sin(rad),
+        ];
+    });
+    
+    coordinates.push(coordinates[0]); // Fermer le polygone
+    
+    return {
+        type: "Feature" as const,
+        properties: { q, r, id: `${q},${r}` },
+        geometry: {
+            type: "Polygon" as const,
+            coordinates: [coordinates],
+        },
+    };
+}
 
-    // Monte la carte lorsqu'on dispose d'un conteneur DOM côté client.
+export default function AppPage() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<MapLibreMap | null>(null);
+    const {
+        tiles,
+        selectedTile,
+        selectTile,
+        setHoveredTile,
+        fetchGameState,
+        fetchTiles,
+    } = useMapContext();
+
+    // Initialisation de la carte
     useEffect(() => {
-        if (typeof window === "undefined" || !containerRef.current) {
-            return;
-        }
+        if (!containerRef.current || mapRef.current) return;
 
         let cancelled = false;
-        let mapInstance: MapLibreInstance | null = null;
 
-        // Initialisation asynchrone de la carte dès que le conteneur est disponible.
         (async () => {
             const maplibre = await getMapLibre();
-            if (cancelled || !containerRef.current) {
-                return;
-            }
+            if (cancelled || !containerRef.current) return;
 
-            mapInstance = new maplibre.Map({
+            const map = new maplibre.Map({
                 container: containerRef.current,
+                //style: {
+                //    version: 8,
+                //    sources: {},
+                //    layers: [
+                //        {
+                //            id: "background",
+                //            type: "background",
+                //            paint: { "background-color": "#1a2332" },
+                //        },
+                //    ],
+                //},
                 style: "https://demotiles.maplibre.org/style.json",
-                center: [0, 20],
-                zoom: 2.5,
+                center: [0, 0],
+                zoom: 2,
                 attributionControl: false,
             });
 
-            attachMap(mapInstance);
+            mapRef.current = map;
+
+            map.on("load", () => {
+                console.log("Carte chargée");
+            });
         })();
 
         return () => {
             cancelled = true;
-            attachMap(null);
-            if (mapInstance) {
-                mapInstance.remove();
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
             }
         };
-    }, [attachMap]);
+    }, []);
 
-    // Force un resize MapLibre lorsqu'on redimensionne la fenêtre.
+    // Chargement initial des données
     useEffect(() => {
-        if (!map) {
-            return undefined;
-        }
+        fetchGameState();
+        fetchTiles();
+    }, [fetchGameState, fetchTiles]);
 
-        // Maintient la carte alignée avec le viewport.
-        const handleResize = () => {
-            map.resize();
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [map]);
-
-    // Crée les sources/couches GeoJSON une fois la carte prête.
+    // Mise à jour de la couche hexagonale
     useEffect(() => {
-        if (!isReady || initializedRef.current) {
-            return;
-        }
-        initializedRef.current = true;
+        const map = mapRef.current;
+        if (!map || !map.isStyleLoaded() || tiles.size === 0) return;
 
-        const bootstrapLayers = async () => {
-            //await registerSource("countries", "/api/geo/countries");
-//
-            //await addLayer({
-            //    id: "countries-fill",
-            //    type: "fill",
-            //    source: "countries",
-            //    paint: {
-            //        "fill-color": "#218774",
-            //        "fill-opacity": 0.4,
-            //    },
-            //});
+        // Générer le GeoJSON à partir des tuiles
+        const features = Array.from(tiles.values()).map(tile =>
+            hexToGeoJSON(tile.q, tile.r)
+        );
+
+        const geojson = {
+            type: "FeatureCollection" as const,
+            features,
         };
 
-        bootstrapLayers().catch((error) => {
-            console.error("Erreur lors de l'initialisation des couches:", error);
+        // Ajouter ou mettre à jour la source
+        if (map.getSource("hexagons")) {
+            (map.getSource("hexagons") as any).setData(geojson);
+        } else {
+            map.addSource("hexagons", {
+                type: "geojson",
+                data: geojson,
+            });
+
+            // Couche de remplissage
+            map.addLayer({
+                id: "hexagons-fill",
+                type: "fill",
+                source: "hexagons",
+                paint: {
+                    "fill-color": [
+                        "case",
+                        ["boolean", ["feature-state", "selected"], false],
+                        "#FFD700",
+                        ["boolean", ["feature-state", "hovered"], false],
+                        "#4A90E2",
+                        "#2C5F8D",
+                    ],
+                    "fill-opacity": 0.6,
+                },
+            });
+
+            // Couche de contour
+            map.addLayer({
+                id: "hexagons-outline",
+                type: "line",
+                source: "hexagons",
+                paint: {
+                    "line-color": "#88CCEE",
+                    "line-width": 1.5,
+                },
+            });
+        }
+    }, [tiles]);
+
+    // Gestion de la sélection
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map || !map.getSource("hexagons")) return;
+
+        // Réinitialiser tous les états
+        tiles.forEach(tile => {
+            map.removeFeatureState({
+                source: "hexagons",
+                id: tile.id,
+            });
         });
-    }, [isReady, registerSource, addLayer]);
 
-    // Enregistre les handlers d'interactions dès que la carte est prête.
-    useEffect(() => {
-        if (!isReady || !map) {
-            return;
+        // Mettre à jour l'état de la tuile sélectionnée
+        if (selectedTile) {
+            map.setFeatureState(
+                {
+                    source: "hexagons",
+                    id: selectedTile.id,
+                },
+                { selected: true }
+            );
         }
+    }, [selectedTile, tiles]);
 
-        // Signale qu'une zone interactive est survolée.
-        const handleCountryEnter = () => {
-            map.getCanvas().style.cursor = "pointer";
+    // Gestion des interactions
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        const handleClick = (e: any) => {
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: ["hexagons-fill"],
+            });
+
+            if (features.length > 0) {
+                const tileId = features[0].properties?.id;
+                selectTile(tileId);
+            } else {
+                selectTile(null);
+            }
         };
 
-        // Restaure le curseur par défaut lorsque la couche n'est plus ciblée.
-        const handleCountryLeave = () => {
-            map.getCanvas().style.cursor = "";
+        const handleMouseMove = (e: any) => {
+            const features = map.queryRenderedFeatures(e.point, {
+                layers: ["hexagons-fill"],
+            });
+
+            const canvas = map.getCanvas();
+            
+            if (features.length > 0) {
+                canvas.style.cursor = "pointer";
+                const tileId = features[0].properties?.id;
+                setHoveredTile(tileId);
+                
+                // État visuel du hover
+                tiles.forEach(tile => {
+                    if (tile.id !== selectedTile?.id) {
+                        map.setFeatureState(
+                            { source: "hexagons", id: tile.id },
+                            { hovered: tile.id === tileId }
+                        );
+                    }
+                });
+            } else {
+                canvas.style.cursor = "";
+                setHoveredTile(null);
+                
+                // Réinitialiser le hover
+                tiles.forEach(tile => {
+                    if (tile.id !== selectedTile?.id) {
+                        map.setFeatureState(
+                            { source: "hexagons", id: tile.id },
+                            { hovered: false }
+                        );
+                    }
+                });
+            }
         };
 
-        on("mouseenter", "countries-fill", handleCountryEnter);
-        on("mouseleave", "countries-fill", handleCountryLeave);
+        map.on("click", handleClick);
+        map.on("mousemove", handleMouseMove);
 
         return () => {
-            off("mouseenter", "countries-fill", handleCountryEnter);
-            off("mouseleave", "countries-fill", handleCountryLeave);
-            map.getCanvas().style.cursor = "";
+            map.off("click", handleClick);
+            map.off("mousemove", handleMouseMove);
         };
-    }, [isReady, map, on, off, fitToBounds]);
+    }, [selectTile, setHoveredTile, tiles, selectedTile]);
+
+    // Resize handler
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        const handleResize = () => map.resize();
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <div className="map-root">
@@ -146,9 +266,4 @@ function MapScene() {
             <MapOverlay />
         </div>
     );
-}
-
-// Page Next.js qui délègue tout le rendu à MapScene (le Provider est dans layout.tsx).
-export default function AppPage() {
-    return <MapScene />;
 }

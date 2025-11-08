@@ -36,8 +36,8 @@
 }
 
 .hud_ressource {
-    position: relative;               /* nécessaire pour positionner la pastille */
-    display: grid;                    /* centrage simple */
+    position: relative;
+    display: grid;
     place-items: center;
     width: 50px;
     height: 50px;
@@ -66,8 +66,8 @@
     background-color: #ffffff;
     bottom: -5px;
     color: #000000;
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -77,11 +77,11 @@
 }
 
 .hud_ressource_quantite.gauche {
-    right: 0;
+    right: -5px;
 }
 
 .hud_ressource_quantite.droite {
-    left: 0;
+    left: -5px;
 }
 
 .hud_time {
@@ -110,7 +110,7 @@
     width: 80%;
     height: 50dvh;
     background-color: rgba(31, 41, 55, 0.8);
-    border-radius: 20px 20px 0 0;
+    border-radius: 0 20px 0 0;
     transition: all 0.3s ease-in-out;
     pointer-events: auto;
 }
