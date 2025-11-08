@@ -11,11 +11,11 @@ Our project addresses **Challenge #1: “Immersive and interactive consumer appl
 **Tradhelm** is a **real-time multiplayer web strategy game** where players start from small villages on different continents and grow into powerful nations.  
 Each region’s resources are determined by **real Copernicus satellite data**, defining biomes and the availability of **water, forests, agriculture, minerals, and energy**.  
 
-No player possesses all resources, making **trade, negotiation, and cooperation** essential—or **espionage and betrayal** for the bold.  
+No player possesses all resources, making **trade, negotiation, and cooperation** essential, or **espionage and betrayal** for the bold.  
 Players earn and lose **honor points** based on their actions, shaping a living world where **trust, strategy, and responsibility** coexist.  
 The player with the highest honor at the end wins.
 
-Tradhelm’s purpose is to **raise environmental awareness** and **teach sustainable management** through gameplay, targeting **educational institutions (B2B)** as a tool for engaging students in global resource challenges.
+Tradhelm’s purpose is to **raise environmental awareness** and **teach sustainable management** through gameplay, targeting **educational institutions** as a tool for engaging students in global resource challenges.
 
 ---
 
