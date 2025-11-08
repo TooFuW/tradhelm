@@ -15,40 +15,35 @@ export function MapOverlay() {
     return (
         <aside className="hud">
             <div className="hud_topbar">
-                <div className="hud_ressource" style={{backgroundImage: "url('/batiment_mine_1.svg')"}}>
+                <div className="hud_ressource" style={{backgroundImage: "url('/bois.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         1
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/bronze.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         2
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/charbon.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         3
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/eau.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         4
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/fer.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         5
                     </div>
                 </div>
                 <div className="hud_ressources">
-                    <div className="hud_ressource">
+                    <div className="hud_ressource" style={{backgroundImage: "url('/point_diplomatie.svg')"}}>
                         <div className="hud_ressource_quantite gauche">
                             11
-                        </div>
-                    </div>
-                    <div className="hud_ressource">
-                        <div className="hud_ressource_quantite">
-                            13
                         </div>
                     </div>
                     <div className="hud_ressource">
@@ -61,27 +56,27 @@ export function MapOverlay() {
                     <h3>08:12</h3>
                     <h3>12 10 2025</h3>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/gold.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         6
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/nouriture.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         7
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/pierre.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         8
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/sable.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         9
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/éléctriciter.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         10
                     </div>
