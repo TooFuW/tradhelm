@@ -5,6 +5,7 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 import { useMapContext } from "../lib/map/MapContext";
 import { MapOverlay } from "../components/map/MapOverlay";
 import "../styles/map.css";
+import { GameStart } from "../components/map/GameStart";
 
 type MapLibreModule = typeof import("maplibre-gl");
 
@@ -78,6 +79,7 @@ export default function AppPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
     const {
+        gameStarted,
         squareCache,
         selectedSquare,
         hoveredSquareId,
@@ -100,7 +102,7 @@ export default function AppPage() {
                 container: containerRef.current,
                 style: "https://demotiles.maplibre.org/style.json", // Carte du monde OpenStreetMap
                 center: [0, 20],
-                zoom: 2,
+                zoom: 4,
                 attributionControl: false,
             });
 
@@ -110,7 +112,7 @@ export default function AppPage() {
                 console.log("Carte chargée");
                 
                 // Génère la grille de carrés
-                const squareGrid = generateWorldSquareGrid(1);
+                const squareGrid = generateWorldSquareGrid(0.5);
                 
                 map.addSource("square-grid", {
                     type: "geojson",
@@ -118,29 +120,29 @@ export default function AppPage() {
                 });
 
                 // Couche de remplissage des carrés
-                map.addLayer({
-                    id: "square-fill",
-                    type: "fill",
-                    source: "square-grid",
-                    paint: {
-                        "fill-color": [
-                            "case",
-                            ["boolean", ["feature-state", "selected"], false],
-                            "#FFD700",
-                            ["boolean", ["feature-state", "hovered"], false],
-                            "#4A90E2",
-                            ["boolean", ["feature-state", "loaded"], false],
-                            "#2C5F8D",
-                            "#1a1a1a",
-                        ],
-                        "fill-opacity": [
-                            "case",
-                            ["boolean", ["feature-state", "loaded"], false],
-                            0.6,
-                            0.2,
-                        ],
-                    },
-                });
+                //map.addLayer({
+                //    id: "square-fill",
+                //    type: "fill",
+                //    source: "square-grid",
+                //    paint: {
+                //        "fill-color": [
+                //            "case",
+                //            ["boolean", ["feature-state", "selected"], false],
+                //            "#FFD700",
+                //            ["boolean", ["feature-state", "hovered"], false],
+                //            "#4A90E2",
+                //            ["boolean", ["feature-state", "loaded"], false],
+                //            "#2C5F8D",
+                //            "#1a1a1a",
+                //        ],
+                //        "fill-opacity": [
+                //            "case",
+                //            ["boolean", ["feature-state", "loaded"], false],
+                //            0.6,
+                //            0.2,
+                //        ],
+                //    },
+                //});
 
                 // Couche de contour
                 map.addLayer({
@@ -296,8 +298,11 @@ export default function AppPage() {
 
     return (
         <div className="map-root">
+            {gameStarted
+                ? <MapOverlay />
+                : <GameStart />
+            }
             <div ref={containerRef} className="map-canvas" />
-            <MapOverlay />
         </div>
     );
 }

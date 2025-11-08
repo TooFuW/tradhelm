@@ -42,6 +42,8 @@ export interface GameState {
 }
 
 interface MapContextValue {
+    gameStarted: boolean;
+    gamesList: string[];
     gameState: GameState | null;
     playerData: PlayerData | null;
     
@@ -49,6 +51,7 @@ interface MapContextValue {
     selectedSquare: SquareTile | null;
     hoveredSquareId: string | null;
     
+    setGameStarted: (started: boolean) => void;
     loadSquareData: (squareId: string) => Promise<SquareTile>;
     selectSquare: (squareId: string | null) => void;
     setHoveredSquareId: (squareId: string | null) => void;
@@ -58,6 +61,8 @@ interface MapContextValue {
 const MapContext = createContext<MapContextValue | undefined>(undefined);
 
 export function MapProvider({ children }: { children: ReactNode }) {
+    const [gameStarted, setGameStarted] = useState(false);
+    const [gamesList] = useState<string[]>(["JG4T5H", "O85AUC", "8C2E5C"]);
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerData, setPlayerData] = useState<PlayerData | null>(null);
     const [squareCache, setSquareCache] = useState<Map<string, SquareTile>>(new Map());
@@ -157,22 +162,28 @@ export function MapProvider({ children }: { children: ReactNode }) {
 
     const value = useMemo<MapContextValue>(
         () => ({
+            gameStarted,
+            gamesList,
             gameState,
             playerData,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setGameStarted,
             loadSquareData,
             selectSquare,
             setHoveredSquareId,
             fetchGameState,
         }),
         [
+            gameStarted,
+            gamesList,
             gameState,
             playerData,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setGameStarted,
             loadSquareData,
             selectSquare,
             setHoveredSquareId,
