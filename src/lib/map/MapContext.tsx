@@ -46,11 +46,13 @@ interface MapContextValue {
     gamesList: string[];
     gameState: GameState | null;
     playerData: PlayerData | null;
+    batimentSelected: string | null;
     
     squareCache: Map<string, SquareTile>;
     selectedSquare: SquareTile | null;
     hoveredSquareId: string | null;
     
+    setBatimentSelected: (batimentId: string | null) => void;
     setGameStarted: (started: boolean) => void;
     loadSquareData: (squareId: string) => Promise<SquareTile>;
     selectSquare: (squareId: string | null) => void;
@@ -68,6 +70,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
     const [squareCache, setSquareCache] = useState<Map<string, SquareTile>>(new Map());
     const [selectedSquare, setSelectedSquare] = useState<SquareTile | null>(null);
     const [hoveredSquareId, setHoveredSquareId] = useState<string | null>(null);
+    const [batimentSelected, setBatimentSelected] = useState<string | null>(null);
     
     const loadingRef = useState(new Map<string, Promise<SquareTile>>())[0];
 
@@ -166,9 +169,11 @@ export function MapProvider({ children }: { children: ReactNode }) {
             gamesList,
             gameState,
             playerData,
+            batimentSelected,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setBatimentSelected,
             setGameStarted,
             loadSquareData,
             selectSquare,
@@ -180,9 +185,11 @@ export function MapProvider({ children }: { children: ReactNode }) {
             gamesList,
             gameState,
             playerData,
+            batimentSelected,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setBatimentSelected,
             setGameStarted,
             loadSquareData,
             selectSquare,

@@ -207,3 +207,32 @@
 .hud_bottombar_opener svg {
     transition: all 0.3s ease-in-out;
 }
+
+.hud_bottombar_content {
+    color: #f9fafb;
+    text-align: center;
+}
+
+.hud_bottombar_content h2 {
+    font-size: 32px;
+}
+
+.batiments {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.batiment {
+    width: 200px;
+    height: 200px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}

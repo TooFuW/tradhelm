@@ -5,12 +5,16 @@ import { useMapContext } from "@/src/lib/map/MapContext";
 
 export function MapOverlay() {
     const [openPanel, setOpenPanel] = useState(false);
-    const { selectedSquare } = useMapContext();
+    const { selectedSquare, setBatimentSelected } = useMapContext();
     useEffect(() => {
         if (selectedSquare) {
             setOpenPanel(true);
         }
     }, [selectedSquare]);
+
+    const handleResourceClick = (e: React.MouseEvent<HTMLDivElement>, url: string) => {
+        setBatimentSelected(url);
+    };
 
     return (
         <aside className="hud">
@@ -42,13 +46,8 @@ export function MapOverlay() {
                 </div>
                 <div className="hud_ressources">
                     <div className="hud_ressource" style={{backgroundImage: "url('/point_diplomatie.svg')"}}>
-                        <div className="hud_ressource_quantite gauche">
+                        <div className="hud_ressource_quantite centre">
                             11
-                        </div>
-                    </div>
-                    <div className="hud_ressource">
-                        <div className="hud_ressource_quantite droite">
-                            12
                         </div>
                     </div>
                 </div>
@@ -84,7 +83,7 @@ export function MapOverlay() {
             </div>
 
             <div className="hud_bottombar" style={{bottom: openPanel ? "0px" : "-50dvh"}}>
-                <div className="hud_bottombar_opener" onClick={() => setOpenPanel(!openPanel)}>
+                {/*<div className="hud_bottombar_opener" onClick={() => setOpenPanel(!openPanel)}>
                     <svg style={{transform: openPanel ? "rotate(180deg)" : ""}} width="30px" height="30px" viewBox="0 -4.5 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
                         <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                             <g id="Icon-Set-Filled" transform="translate(-521.000000, -1202.000000)" fill="#ffffffff">
@@ -92,6 +91,20 @@ export function MapOverlay() {
                             </g>
                         </g>
                     </svg>
+                </div>*/}
+                <div className="hud_bottombar_content">
+                    <h2>Sélectionnez le batîment à poser :</h2>
+                    <div className="batiments">
+                        <div className="batiment">
+                            <img src="/extrat_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/extrat_niv_1.svg")} />
+                        </div>
+                        <div className="batiment">
+                            <img src="/barrage_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/barrage_niv_1.svg")} />
+                        </div>
+                        <div className="batiment">
+                            <img src="/labo_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/labo_niv_1.svg")} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </aside>
