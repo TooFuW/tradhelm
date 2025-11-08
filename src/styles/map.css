@@ -1,0 +1,209 @@
+/* CSS MAP */
+.map-root {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+.map-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* START MENU */
+
+.startmenu {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    text-align: center;
+}
+
+.startmenu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url(/banner2.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px); /* ajuste l’intensité */
+  transform: scale(1.05); /* évite les bords nets après flou */
+  z-index: 0;
+}
+
+.startmenu * {
+    z-index: 1;
+    padding: 10px;
+}
+
+.startmenu img {
+    width: 200px;
+}
+
+.startmenu h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.startmenu p {
+    font-size: 22px;
+    margin-bottom: 30px;
+}
+
+.startmenu_list h3 {
+    font-size: 28px;
+    margin: 10px 0;
+}
+
+.startmenu_list {
+    list-style: none;
+    padding: 0 10px;
+    margin: 0;
+}
+
+.startmenu input {
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    border: none;
+    margin-right: 10px;
+}
+
+.startmenu button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    border: none;
+    background-color: #ff0000;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* CSS HUD TOPBAR */
+
+.hud {
+    position: absolute;
+    inset: 0;
+    font-size: 14px;
+    color: #f9fafb;
+    pointer-events: none;
+}
+
+.hud_topbar {
+    position: absolute;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: rgba(31, 41, 55, 0.8);
+    top: 0;
+    right: 10%;
+    min-width: 800px;
+    left: 10%;
+    padding: 13px 20px 20px;
+    border-radius: 0 0 20px 20px;
+}
+
+.hud_ressource {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.hud_ressource svg {
+  display: block;
+}
+
+.hud_ressources {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 0 10px;
+}
+
+.hud_ressources .hud_ressource {
+    border-radius: 10px;
+}
+
+.hud_ressource_quantite {
+    position: absolute;
+    background-color: #ffffff;
+    bottom: -5px;
+    color: #000000;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.hud_ressource_quantite.gauche {
+    right: -5px;
+}
+
+.hud_ressource_quantite.droite {
+    left: -5px;
+}
+
+.hud_time {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    top: 83px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: rgba(31, 41, 55, 0.8);
+    padding: 0 20px 10px;
+    border-radius: 0 0 20px 20px;
+}
+
+/* CSS HUD BOTTOMBAR */
+
+.hud_bottombar {
+    position: absolute;
+    bottom: 0px;
+    left: 10%;
+    right: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 50dvh;
+    background-color: rgba(31, 41, 55, 0.8);
+    border-radius: 0 20px 0 0;
+    transition: all 0.3s ease-in-out;
+    pointer-events: auto;
+}
+
+.hud_bottombar_opener {
+    position: absolute;
+    top: -60px;
+    left: 0px;
+    width: 60px;
+    height: 60px;
+    background-color: rgba(31, 41, 55, 0.8);
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.hud_bottombar_opener svg {
+    transition: all 0.3s ease-in-out;
+}
