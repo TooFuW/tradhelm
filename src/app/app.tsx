@@ -108,7 +108,7 @@ export default function AppPage() {
 
             mapRef.current = map;
 
-            map.on("load", () => {
+            map.on("load", async () => {
                 console.log("Carte chargée");
                 
                 // Génère la grille de carrés
@@ -117,32 +117,33 @@ export default function AppPage() {
                 map.addSource("square-grid", {
                     type: "geojson",
                     data: squareGrid,
+                    promoteId: "id",
                 });
 
                 // Couche de remplissage des carrés
-                //map.addLayer({
-                //    id: "square-fill",
-                //    type: "fill",
-                //    source: "square-grid",
-                //    paint: {
-                //        "fill-color": [
-                //            "case",
-                //            ["boolean", ["feature-state", "selected"], false],
-                //            "#FFD700",
-                //            ["boolean", ["feature-state", "hovered"], false],
-                //            "#4A90E2",
-                //            ["boolean", ["feature-state", "loaded"], false],
-                //            "#2C5F8D",
-                //            "#1a1a1a",
-                //        ],
-                //        "fill-opacity": [
-                //            "case",
-                //            ["boolean", ["feature-state", "loaded"], false],
-                //            0.6,
-                //            0.2,
-                //        ],
-                //    },
-                //});
+                map.addLayer({
+                    id: "square-fill",
+                    type: "fill",
+                    source: "square-grid",
+                    paint: {
+                        "fill-color": [
+                            "case",
+                            ["boolean", ["feature-state", "selected"], false],
+                            "#FFD700",
+                            ["boolean", ["feature-state", "hovered"], false],
+                            "#4A90E2",
+                            "transparent",
+                        ],
+                        "fill-opacity": [
+                            "case",
+                            ["boolean", ["feature-state", "hovered"], false],
+                            0.5,
+                            ["boolean", ["feature-state", "selected"], false],
+                            0.6,
+                            0,
+                        ],
+                    },
+                });
 
                 // Couche de contour
                 map.addLayer({
@@ -152,17 +153,62 @@ export default function AppPage() {
                     paint: {
                         "line-color": [
                             "case",
-                            ["boolean", ["feature-state", "loaded"], false],
+                            ["boolean", ["feature-state", "hovered"], false],
                             "#88CCEE",
-                            "#444444",
+                            ["boolean", ["feature-state", "selected"], false],
+                            "#FFD700",
+                            "transparent",
                         ],
                         "line-width": [
                             "case",
                             ["boolean", ["feature-state", "selected"], false],
                             2.5,
-                            0.5,
+                            ["boolean", ["feature-state", "hovered"], false],
+                            1.5,
+                            0,
                         ],
                     },
+                });
+
+                // Charge et affiche l'icône de mine en France comme un polygone
+                // On crée un petit carré qui contiendra l'image
+                const mineSize = 0.05; // Taille en degrés (latitude/longitude)
+                const mineLon = 2.3;
+                const mineLat = 48.8;
+                
+                map.addSource('mine-marker', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: [{
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Polygon',
+                                coordinates: [[
+                                    [mineLon - mineSize, mineLat - mineSize],
+                                    [mineLon + mineSize, mineLat - mineSize],
+                                    [mineLon + mineSize, mineLat + mineSize],
+                                    [mineLon - mineSize, mineLat + mineSize],
+                                    [mineLon - mineSize, mineLat - mineSize]
+                                ]]
+                            },
+                            properties: {}
+                        }]
+                    }
+                });
+
+                // Charge l'image comme pattern
+                const mineImage = await map.loadImage('/image.png');
+                map.addImage('mine-pattern', mineImage.data);
+
+                // Layer pour afficher l'image comme un remplissage
+                map.addLayer({
+                    id: 'mine-layer',
+                    type: 'fill',
+                    source: 'mine-marker',
+                    paint: {
+                        'fill-pattern': 'mine-pattern'
+                    }
                 });
             });
         })();
@@ -222,15 +268,16 @@ export default function AppPage() {
     // Gère les interactions
     useEffect(() => {
         const map = mapRef.current;
-        if (!map) return;
+        if (!map || !map.getSource("square-grid")) return;
 
         const handleClick = (e: any) => {
             const features = map.queryRenderedFeatures(e.point, {
-                layers: ["square-fill"],
+                layers: ["square-fill", "square-outline"],
             });
 
             if (features.length > 0) {
                 const squareId = features[0].properties?.id;
+                console.log("Clicked square:", squareId);
                 selectSquare(squareId);
             } else {
                 selectSquare(null);
@@ -239,7 +286,7 @@ export default function AppPage() {
 
         const handleMouseMove = (e: any) => {
             const features = map.queryRenderedFeatures(e.point, {
-                layers: ["square-fill"],
+                layers: ["square-fill", "square-outline"],
             });
 
             const canvas = map.getCanvas();
@@ -247,32 +294,32 @@ export default function AppPage() {
             if (features.length > 0) {
                 canvas.style.cursor = "pointer";
                 const squareId = features[0].properties?.id;
-                setHoveredSquareId(squareId);
                 
-                // État visuel du hover
-                if (squareId !== selectedSquare?.id) {
+                // Retire le hover précédent
+                if (hoveredSquareId && hoveredSquareId !== squareId) {
+                    map.setFeatureState(
+                        { source: "square-grid", id: hoveredSquareId },
+                        { hovered: false }
+                    );
+                }
+                
+                // Applique le nouveau hover
+                if (squareId !== hoveredSquareId) {
+                    setHoveredSquareId(squareId);
                     map.setFeatureState(
                         { source: "square-grid", id: squareId },
                         { hovered: true }
                     );
                 }
-                
-                // Retire le hover des autres
-                if (hoveredSquareId && hoveredSquareId !== squareId && hoveredSquareId !== selectedSquare?.id) {
-                    map.setFeatureState(
-                        { source: "square-grid", id: hoveredSquareId },
-                        { hovered: false }
-                    );
-                }
             } else {
                 canvas.style.cursor = "";
-                if (hoveredSquareId && hoveredSquareId !== selectedSquare?.id) {
+                if (hoveredSquareId) {
                     map.setFeatureState(
                         { source: "square-grid", id: hoveredSquareId },
                         { hovered: false }
                     );
+                    setHoveredSquareId(null);
                 }
-                setHoveredSquareId(null);
             }
         };
 
