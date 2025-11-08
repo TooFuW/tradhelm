@@ -58,8 +58,8 @@ export function MapOverlay() {
                     </div>
                 </div>
                 <div className="hud_time">
-                    <h3>08:12</h3>
-                    <h3>12 10 2025</h3>
+                    <h3>09:12</h3>
+                    <h3>09-11-2025</h3>
                 </div>
                 <div className="hud_ressource" style={{backgroundImage: "url('/gold.svg')"}}>
                     <div className="hud_ressource_quantite droite">
@@ -99,7 +99,7 @@ export function MapOverlay() {
                     </svg>
                 </div>*/}
                 <div className="hud_bottombar_content">
-                    <h2>Sélectionnez le batîment à poser :</h2>
+                    <h2>Select the building to place :</h2>
                     <div className="batiments">
                         <div className="batiment">
                             <img src="/extrat_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/extrat_niv_1.svg")} />

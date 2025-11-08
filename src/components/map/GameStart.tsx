@@ -73,19 +73,19 @@ export function GameStart() {
         <aside className="startmenu">
             <div className="startmenu_content">
                 <img src="/logo.png" alt="" />
-                <h2>Bienvenue sur Tradhelm</h2>
-                <p>Entrez votre nom et rejoignez une partie ou créez-en une</p>
+                <h2>Welcome on Tradhelm</h2>
+                <p>Enter your name and join a game or create a new one</p>
                 <input type="text" id="pseudo" placeholder="Pseudo" value={name} onChange={(e) => setName(e.target.value)} />
                 <button className="startmenu_button" onClick={createGame}>
-                    Nouveau Jeu
+                    New Game
                 </button>
                 {lobbyGames && lobbyGames.length > 0 && (
                     <ul className="startmenu_list">
-                        <h3>Rejoindre un jeu</h3>
+                        <h3>Join a game</h3>
                         {lobbyGames.map((game) => (
                             <li key={game.id}>
                                 <button className="startmenu_button" onClick={() => joinGame(game.id)}>
-                                    {game.id} ({game.nb_joueurs} joueurs)
+                                    {game.id} ({game.nb_joueurs} players)
                                 </button>
                             </li>
                         ))}
