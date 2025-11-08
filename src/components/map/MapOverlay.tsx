@@ -5,7 +5,7 @@ import { useMapContext } from "@/src/lib/map/MapContext";
 
 export function MapOverlay() {
     const [openPanel, setOpenPanel] = useState(false);
-    const { selectedSquare, setBatimentSelected } = useMapContext();
+    const { selectedSquare, setBatimentSelected, batimentSelected } = useMapContext();
     useEffect(() => {
         if (selectedSquare) {
             setOpenPanel(true);
@@ -13,7 +13,13 @@ export function MapOverlay() {
     }, [selectedSquare]);
 
     const handleResourceClick = (e: React.MouseEvent<HTMLDivElement>, url: string) => {
-        setBatimentSelected(url);
+        console.log(batimentSelected);
+        setBatimentSelected(
+            batimentSelected
+                ? [...batimentSelected.map(b => ({ ...b })), { id: selectedSquare?.id || "", url: url }]
+                : [{ id: selectedSquare?.id || "", url: url }]
+        );
+        setOpenPanel(false);
     };
 
     return (

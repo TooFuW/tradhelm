@@ -6,8 +6,22 @@
 }
 
 .map-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
+}
+
+.map-canvas canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    z-index: 2; /* Plus haut que la map */
 }
 
 /* START MENU */
@@ -20,6 +34,8 @@
     align-items: center;
     color: #ffffff;
     text-align: center;
+    position: absolute;
+    z-index: 10;
 }
 
 .startmenu::before {
@@ -92,6 +108,7 @@
     font-size: 14px;
     color: #f9fafb;
     pointer-events: none;
+    z-index: 10;
 }
 
 .hud_topbar {
@@ -185,9 +202,10 @@
     width: 80%;
     height: 50dvh;
     background-color: rgba(31, 41, 55, 0.8);
-    border-radius: 0 20px 0 0;
+    border-radius: 20px 20px 0 0;
     transition: all 0.3s ease-in-out;
     pointer-events: auto;
+    z-index: 10;
 }
 
 .hud_bottombar_opener {

@@ -18,7 +18,7 @@ async function getMapLibre(): Promise<MapLibreModule> {
 }
 
 export default function MapGrid() {
-    const { gameStarted, batimentSelected, setBatimentSelected, selectSquare, setHoveredSquareId, hoveredSquareId, selectedSquare } = useMapContext();
+    const { gameStarted, batimentSelected, selectSquare, setHoveredSquareId, hoveredSquareId, selectedSquare } = useMapContext();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
@@ -75,9 +75,21 @@ export default function MapGrid() {
                 const y = r * TILE_SIZE + viewOffset.y;
                 const squareId = `${q},${r}`;
 
-                if (selectedSquare?.id === squareId && batimentSelected) {
+                ctx.fillStyle = selectedSquare?.id === squareId
+                    ? "#01ff01"
+                    : hoveredSquareId === squareId
+                    ? "#60fa60"
+                    : "transparent";
+
+                ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                ctx.strokeStyle = "#374151";
+                ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+
+                if (batimentSelected) {
+                    const selectedBatiment = batimentSelected?.find(b => b.id === squareId)?.url;
+                    if (!selectedBatiment) continue;
                     const image = new Image();
-                    image.src = batimentSelected;
+                    image.src = selectedBatiment;
                     image.onload = () => {const PAD = 5;
                         const inner = TILE_SIZE - PAD;
 
@@ -91,16 +103,6 @@ export default function MapGrid() {
                         ctx.drawImage(image, dx, dy, dw, dh);
                     };
                 }
-
-                ctx.fillStyle = selectedSquare?.id === squareId
-                    ? "#3b82f6"
-                    : hoveredSquareId === squareId
-                    ? "#60a5fa"
-                    : "#00ff0dff";
-
-                ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                ctx.strokeStyle = "#374151";
-                ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
             }
         }
     }, [hoveredSquareId, selectedSquare, viewOffset, batimentSelected]);
@@ -126,7 +128,6 @@ export default function MapGrid() {
     const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        setBatimentSelected(null);
 
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left - viewOffset.x;
@@ -141,19 +142,26 @@ export default function MapGrid() {
     };
 
     return (
-        <div className="map-root">
-            {gameStarted
-                ? <MapOverlay />
-                : <GameStart />
-            }
-            <div className="map-canvas" ref={containerRef}>
-                <canvas
-                    ref={canvasRef}
-                    onMouseMove={handleMouseMove}
-                    onClick={handleClick}
-                    onMouseLeave={() => setHoveredSquareId(null)}
-                />
-            </div>
-        </div>
-    );
+    <div className="map-root">
+        
+        <div ref={containerRef} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+        
+        <canvas
+            ref={canvasRef}
+            onMouseMove={handleMouseMove}
+            onClick={handleClick}
+            onMouseLeave={() => setHoveredSquareId(null)}
+            style={{ 
+                position: 'absolute', 
+                inset: 0, 
+                zIndex: 10,
+                pointerEvents: 'auto'
+            }}
+        />
+        {gameStarted
+            ? <MapOverlay />
+            : <GameStart />
+        }
+    </div>
+);
 }
