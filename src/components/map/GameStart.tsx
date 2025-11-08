@@ -4,7 +4,7 @@ import { useMapContext } from "@/src/lib/map/MapContext";
 import { useEffect, useMemo, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:5742";
+const SOCKET_URL = "http://bonus.nc:5742";
 
 export function GameStart() {
     const { setGameStarted, gamesList } = useMapContext();
@@ -49,11 +49,13 @@ export function GameStart() {
     }, [setGameStarted]);
 
     function createGame() {
-        if (!socket) return;
-        socket.emit("game:create");
+        setGameStarted(true);
+        if (!socket || !trimmedName) return;
+        socket.emit("game:create", { name: trimmedName });
     }
 
     function joinGame(gameId: string) {
+        setGameStarted(true);
         if (!socket || !trimmedName) return;
         socket.emit("game:join", { gameId, name: trimmedName });
     }
@@ -65,7 +67,7 @@ export function GameStart() {
                 <h2>Bienvenue sur Tradhelm</h2>
                 <p>Entrez votre nom et cliquez sur "Nouveau Jeu"</p>
                 <input type="text" id="pseudo" placeholder="Pseudo" value={name} onChange={(e) => setName(e.target.value)} />
-                <button className="startmenu_button" onClick={createGame} disabled={!socket}>
+                <button className="startmenu_button" onClick={createGame} disabled={!socket || !trimmedName}>
                     Nouveau Jeu
                 </button>
                 {lobbyGames && lobbyGames.length > 0 && (

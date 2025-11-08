@@ -157,7 +157,7 @@ export default function AppPage() {
                             "#88CCEE",
                             ["boolean", ["feature-state", "selected"], false],
                             "#FFD700",
-                            "transparent",
+                            "#000",
                         ],
                         "line-width": [
                             "case",
@@ -165,7 +165,7 @@ export default function AppPage() {
                             2.5,
                             ["boolean", ["feature-state", "hovered"], false],
                             1.5,
-                            0,
+                            0.5,
                         ],
                     },
                 });
@@ -194,20 +194,6 @@ export default function AppPage() {
                             },
                             properties: {}
                         }]
-                    }
-                });
-
-                // Charge l'image comme pattern
-                const mineImage = await map.loadImage('/image.png');
-                map.addImage('mine-pattern', mineImage.data);
-
-                // Layer pour afficher l'image comme un remplissage
-                map.addLayer({
-                    id: 'mine-layer',
-                    type: 'fill',
-                    source: 'mine-marker',
-                    paint: {
-                        'fill-pattern': 'mine-pattern'
                     }
                 });
             });
