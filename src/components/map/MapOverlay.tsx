@@ -5,83 +5,83 @@ import { useMapContext } from "@/src/lib/map/MapContext";
 
 export function MapOverlay() {
     const [openPanel, setOpenPanel] = useState(false);
-    const { selectedSquare } = useMapContext();
+    const { selectedSquare, setBatimentSelected, batimentSelected } = useMapContext();
     useEffect(() => {
         if (selectedSquare) {
             setOpenPanel(true);
         }
     }, [selectedSquare]);
 
+    const handleResourceClick = (e: React.MouseEvent<HTMLDivElement>, url: string) => {
+        console.log(batimentSelected);
+        setBatimentSelected(
+            batimentSelected
+                ? [...batimentSelected.map(b => ({ ...b })), { id: selectedSquare?.id || "", url: url }]
+                : [{ id: selectedSquare?.id || "", url: url }]
+        );
+        setOpenPanel(false);
+    };
+
     return (
         <aside className="hud">
             <div className="hud_topbar">
-                <div className="hud_ressource" style={{backgroundImage: "url('/batiment_mine_1.svg')"}}>
+                <div className="hud_ressource" style={{backgroundImage: "url('/bois.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         1
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/bronze.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         2
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/charbon.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         3
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/eau.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         4
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/fer.svg')"}}>
                     <div className="hud_ressource_quantite gauche">
                         5
                     </div>
                 </div>
                 <div className="hud_ressources">
-                    <div className="hud_ressource">
-                        <div className="hud_ressource_quantite gauche">
+                    <div className="hud_ressource" style={{backgroundImage: "url('/point_diplomatie.svg')"}}>
+                        <div className="hud_ressource_quantite centre">
                             11
-                        </div>
-                    </div>
-                    <div className="hud_ressource">
-                        <div className="hud_ressource_quantite">
-                            13
-                        </div>
-                    </div>
-                    <div className="hud_ressource">
-                        <div className="hud_ressource_quantite droite">
-                            12
                         </div>
                     </div>
                 </div>
                 <div className="hud_time">
-                    <h3>08:12</h3>
-                    <h3>12 10 2025</h3>
+                    <h3>09:12</h3>
+                    <h3>09-11-2025</h3>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/gold.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         6
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/nouriture.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         7
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/pierre.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         8
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/sable.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         9
                     </div>
                 </div>
-                <div className="hud_ressource">
+                <div className="hud_ressource" style={{backgroundImage: "url('/éléctriciter.svg')"}}>
                     <div className="hud_ressource_quantite droite">
                         10
                     </div>
@@ -89,7 +89,7 @@ export function MapOverlay() {
             </div>
 
             <div className="hud_bottombar" style={{bottom: openPanel ? "0px" : "-50dvh"}}>
-                <div className="hud_bottombar_opener" onClick={() => setOpenPanel(!openPanel)}>
+                {/*<div className="hud_bottombar_opener" onClick={() => setOpenPanel(!openPanel)}>
                     <svg style={{transform: openPanel ? "rotate(180deg)" : ""}} width="30px" height="30px" viewBox="0 -4.5 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
                         <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                             <g id="Icon-Set-Filled" transform="translate(-521.000000, -1202.000000)" fill="#ffffffff">
@@ -97,6 +97,20 @@ export function MapOverlay() {
                             </g>
                         </g>
                     </svg>
+                </div>*/}
+                <div className="hud_bottombar_content">
+                    <h2>Select the building to place :</h2>
+                    <div className="batiments">
+                        <div className="batiment">
+                            <img src="/extrat_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/extrat_niv_1.svg")} />
+                        </div>
+                        <div className="batiment">
+                            <img src="/barrage_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/barrage_niv_1.svg")} />
+                        </div>
+                        <div className="batiment">
+                            <img src="/labo_niv_1.svg" alt="" onClick={(e) => handleResourceClick(e, "/labo_niv_1.svg")} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </aside>

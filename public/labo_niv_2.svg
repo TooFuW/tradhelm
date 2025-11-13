@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_1" data-name="Calque 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 251.46 166.63">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #6b6b6a;
+      }
+
+      .cls-3 {
+        fill: #909090;
+      }
+
+      .cls-4 {
+        fill: #5f5e5e;
+        stroke: #8e8e8d;
+        stroke-miterlimit: 10;
+        stroke-width: 8px;
+      }
+
+      .cls-5 {
+        fill: #474746;
+      }
+    </style>
+  </defs>
+  <rect class="cls-3" x="157.86" y="102.03" width="47.71" height="47.71"/>
+  <rect class="cls-5" x="54.4" y="27.42" width="47.71" height="110.22"/>
+  <rect class="cls-2" x="54.4" y="137.65" width="47.71" height="14.57"/>
+  <path class="cls-4" d="M133.19,16.14c-34.13,0-61.8,27.67-61.8,61.8s27.67,61.79,61.8,61.79,61.79-27.66,61.79-61.79-27.66-61.8-61.79-61.8ZM133.19,109.02c-17.17,0-31.08-13.92-31.08-31.08s13.91-31.08,31.08-31.08,31.08,13.91,31.08,31.08-13.92,31.08-31.08,31.08Z"/>
+  <path class="cls-1" d="M121.93,77.94h-10.28c0-11.9,9.65-21.54,21.54-21.54h0v10.28c-6.22,0-11.26,5.04-11.26,11.26Z"/>
+  <path class="cls-1" d="M144.63,80.92h7.72c0,8.94-7.24,16.18-16.18,16.18h0v-7.72c4.67,0,8.46-3.79,8.46-8.46Z"/>
+  <circle class="cls-1" cx="133.19" cy="77.94" r="7.46"/>
+  <circle class="cls-5" cx="133.19" cy="77.94" r="5.09"/>
+</svg>

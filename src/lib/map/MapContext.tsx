@@ -43,14 +43,25 @@ export interface GameState {
 
 interface MapContextValue {
     gameStarted: boolean;
-    gamesList: string[];
+    gamesList: {
+        id: string;
+        nb_joueurs: number;
+    }[];
     gameState: GameState | null;
     playerData: PlayerData | null;
+    batimentSelected: { 
+        id: string;
+        url: string;
+     }[] | null;
     
     squareCache: Map<string, SquareTile>;
     selectedSquare: SquareTile | null;
     hoveredSquareId: string | null;
     
+    setBatimentSelected: (batimentId: { 
+        id: string;
+        url: string;
+     }[] | null) => void;
     setGameStarted: (started: boolean) => void;
     loadSquareData: (squareId: string) => Promise<SquareTile>;
     selectSquare: (squareId: string | null) => void;
@@ -62,12 +73,19 @@ const MapContext = createContext<MapContextValue | undefined>(undefined);
 
 export function MapProvider({ children }: { children: ReactNode }) {
     const [gameStarted, setGameStarted] = useState(false);
-    const [gamesList] = useState<string[]>(["JG4T5H", "O85AUC", "8C2E5C"]);
+    const [gamesList] = useState<{
+        id: string;
+        nb_joueurs: number;
+    }[]>([]);
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerData, setPlayerData] = useState<PlayerData | null>(null);
     const [squareCache, setSquareCache] = useState<Map<string, SquareTile>>(new Map());
     const [selectedSquare, setSelectedSquare] = useState<SquareTile | null>(null);
     const [hoveredSquareId, setHoveredSquareId] = useState<string | null>(null);
+    const [batimentSelected, setBatimentSelected] = useState< { 
+        id: string;
+        url: string;
+     }[] | null>(null);
     
     const loadingRef = useState(new Map<string, Promise<SquareTile>>())[0];
 
@@ -166,9 +184,11 @@ export function MapProvider({ children }: { children: ReactNode }) {
             gamesList,
             gameState,
             playerData,
+            batimentSelected,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setBatimentSelected,
             setGameStarted,
             loadSquareData,
             selectSquare,
@@ -180,9 +200,11 @@ export function MapProvider({ children }: { children: ReactNode }) {
             gamesList,
             gameState,
             playerData,
+            batimentSelected,
             squareCache,
             selectedSquare,
             hoveredSquareId,
+            setBatimentSelected,
             setGameStarted,
             loadSquareData,
             selectSquare,

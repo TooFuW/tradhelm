@@ -2,40 +2,43 @@
 
 **Tradhelm** is a project developed for the **CASSINI Hackathon: *EU Space for Consumer Experience***, an innovation challenge organized by the European Union.  
 The hackathon invites participants to create new consumer applications using **European space technologies** such as **Copernicus** (Earth observation) and **Galileo** (satellite navigation).  
-Our project falls under the **“Immersive and interactive consumer applications”** challenge.
+Our project addresses **Challenge #1: “Immersive and interactive consumer applications.”**
 
 ---
 
 ## 🌍 What is Tradhelm?
 
-**Tradhelm** is a **real-time multiplayer web strategy game** where players start from small villages on different continents and evolve into powerful nations.  
-Each region’s resources are based on **real Copernicus satellite data**, which defines biomes and available natural resources such as water, forests, agriculture, minerals, and energy.  
+**Tradhelm** is a **real-time multiplayer web strategy game** where players start from small villages on different continents and grow into powerful nations.  
+Each region’s resources are determined by **real Copernicus satellite data**, defining biomes and the availability of **water, forests, agriculture, minerals, and energy**.  
 
-No player has access to all resources, forcing **trade, negotiation, and alliances**—or **espionage and sabotage**.  
-Players earn and lose **honor points** based on their actions, shaping a dynamic world of cooperation and deceit.  
-At the end of the match, the player with the most honor points wins.
+No player possesses all resources, making **trade, negotiation, and cooperation** essential, or **espionage and betrayal** for the bold.  
+Players earn and lose **honor points** based on their actions, shaping a living world where **trust, strategy, and responsibility** coexist.  
+The player with the highest honor at the end wins.
+
+Tradhelm’s purpose is to **raise environmental awareness** and **teach sustainable management** through gameplay, targeting **educational institutions** as a tool for engaging students in global resource challenges.
 
 ---
 
 ## 🛰️ How EU Space Technologies Are Used
 
 - **Copernicus** provides Earth observation data to generate realistic biomes and resource distributions.  
-- These datasets make the world dynamic and authentic, connecting virtual strategy to real environmental information.  
+- These datasets make gameplay authentic and dynamic, closely simulating Earth’s ecosystems.  
+- This realism serves to **foster environmental responsibility** and also enables **behavioral analysis** of cooperation and competition patterns among players.
 
-This approach turns **European space data** into an **interactive global simulation**, blending **gameplay, education, and environmental awareness**.
+By transforming **Copernicus data** into an **interactive simulation**, Tradhelm merges **strategy, education, and sustainability** into one experience.
 
 ---
 
-## 🎮 Why It Fits the CASSINI Hackathon
+## 🌐 EU Space for Consumer Experience
 
-Tradhelm transforms real-world space data into an engaging experience that helps players understand **resource interdependence, sustainability, and geopolitics** through play.  
-It demonstrates how **EU space technologies** can enhance **interactive consumer applications** while promoting environmental insight and strategic thinking.
+The project contributes to **Challenge #1: “Immersive and interactive consumer applications”** by transforming Copernicus data into a realistic, global multiplayer simulation.  
+It turns **European space technology** into an **interactive experience** that blends **strategy, education, and environmental responsibility**, promoting awareness and behavioral understanding through play.
 
 ---
 
 ## 👥 Team
 
-- **Eyrian Muet** – Frontend/Backend & Project Manager  
+- **Eyrian Muet** – Frontend & Project Manager  
 - **Thimotée Viret** – Backend & Systems Designer  
 - **Enzo Rubagotti** – Frontend & Data Analyst  
 - **Max Lefebvre** – Frontend & Designer

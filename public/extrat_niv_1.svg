@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_1" data-name="Calque 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 251.46 166.63">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #909090;
+      }
+
+      .cls-2 {
+        fill: #474746;
+      }
+
+      .cls-3 {
+        fill: #b2b2b2;
+      }
+
+      .cls-4 {
+        fill: #5f5e5e;
+      }
+    </style>
+  </defs>
+  <path class="cls-3" d="M209.91,30.51v45.07c0,11.07-8.98,20.04-20.04,20.04h-46.95c-1.03,0-2.04-.08-3.02-.23l-17.02-29.46V30.51c0-3.22.76-6.26,2.1-8.95,3.29-6.58,10.09-11.09,17.94-11.09h46.95c11.06,0,20.04,8.97,20.04,20.04Z"/>
+  <path class="cls-1" d="M167.75,95.62L124.98,21.56l-6.4-11.09-72.03,124.75h144.06l-22.86-39.6ZM88.24,111.02l30.34-52.54,4.3,7.45,17.02,29.46,9.02,15.63h-60.68Z"/>
+  <g>
+    <rect class="cls-4" x="76.91" y="131.2" width="83.34" height="14.69" transform="translate(237.16 277.09) rotate(180)"/>
+    <rect class="cls-4" x="37.94" y="63.7" width="83.34" height="14.69" transform="translate(-21.72 104.47) rotate(-60)"/>
+    <rect class="cls-4" x="115.88" y="63.7" width="83.34" height="14.69" transform="translate(140.31 -100.92) rotate(60)"/>
+  </g>
+  <g>
+    <g id="_Répétition_radiale_" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <rect class="cls-2" x="99.71" y="117.06" width="37.75" height="9.59" transform="translate(-3.28 240.44) rotate(-90)"/>
+    </g>
+    <g id="_Répétition_radiale_-2" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <rect class="cls-2" x="75.19" y="74.6" width="37.75" height="9.59" transform="translate(52.3 -36.4) rotate(30)"/>
+    </g>
+    <g id="_Répétition_radiale_-3" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <rect class="cls-2" x="124.23" y="74.6" width="37.75" height="9.59" transform="translate(306.73 76.6) rotate(150)"/>
+    </g>
+  </g>
+  <polygon class="cls-2" points="118.58 46.78 139.55 10.47 97.62 10.47 118.58 46.78"/>
+</svg>

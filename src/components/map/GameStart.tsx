@@ -1,7 +1,7 @@
 "use client";
 
 import { useMapContext } from "@/src/lib/map/MapContext";
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
 const SOCKET_URL = "http://bonus.nc:5742";
@@ -10,23 +10,40 @@ export function GameStart() {
     const { setGameStarted, gamesList } = useMapContext();
     const [name, setName] = useState("");
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [lobbyGames, setLobbyGames] = useState<string[]>(gamesList);
+    const [lobbyGames, setLobbyGames] = useState<{
+        id: string;
+        nb_joueurs: number;
+    }[]>(gamesList);
+        let token = localStorage.getItem("token");
+    const [instance, setInstance] = useState<Socket | null>(io(SOCKET_URL, {
+            auth: { token },
+        }));
 
     const trimmedName = useMemo(() => name.trim(), [name]);
 
     useEffect(() => {
-        const instance = io(SOCKET_URL, {
-            auth: { token: "optional-token" },
-        });
+        console.log("Socket instance created", instance);
+
+        if (!instance) return;
 
         setSocket(instance);
 
         instance.on("connect", () => {
-            console.log("connected:", instance.id);
+            console.log("connected:", token );
         });
 
-        instance.on("games:list", (games: string[]) => {
+        instance.on("session:token", (newToken) => {
+            localStorage.setItem("token", newToken);
+            console.log("new token received:", newToken);
+        });
+
+        instance.on("games:list", (games) => {
+            // fonction executée quand on reçoit la liste des jeux dispo
+            console.log("EXECUTED");
             console.log("lobby:", games);
+
+            // [{id : ehbnf, nb_joueurs : eufenun}]
+            console.log(games);
             setLobbyGames(games);
         });
 
@@ -39,44 +56,36 @@ export function GameStart() {
             console.log("socket disconnected");
         });
 
-        return () => {
-            instance.off("connect");
-            instance.off("games:list");
-            instance.off("game:update");
-            instance.off("disconnect");
-            instance.disconnect();
-        };
-    }, [setGameStarted]);
+        instance?.emit("game:create", { username: trimmedName });
+    }, []);
 
     function createGame() {
-        setGameStarted(true);
-        if (!socket || !trimmedName) return;
-        socket.emit("game:create", { name: trimmedName });
+        instance?.emit("game:create", { username: trimmedName });
     }
 
     function joinGame(gameId: string) {
+        if (!trimmedName || !instance) return;
+        instance.emit("game:join", { gameId, name: trimmedName });
         setGameStarted(true);
-        if (!socket || !trimmedName) return;
-        socket.emit("game:join", { gameId, name: trimmedName });
     }
 
     return (
         <aside className="startmenu">
             <div className="startmenu_content">
                 <img src="/logo.png" alt="" />
-                <h2>Bienvenue sur Tradhelm</h2>
-                <p>Entrez votre nom et cliquez sur "Nouveau Jeu"</p>
+                <h2>Welcome on Tradhelm</h2>
+                <p>Enter your name and join a game or create a new one</p>
                 <input type="text" id="pseudo" placeholder="Pseudo" value={name} onChange={(e) => setName(e.target.value)} />
-                <button className="startmenu_button" onClick={createGame} disabled={!socket || !trimmedName}>
-                    Nouveau Jeu
+                <button className="startmenu_button" onClick={createGame}>
+                    New Game
                 </button>
                 {lobbyGames && lobbyGames.length > 0 && (
                     <ul className="startmenu_list">
-                        <h3>Rejoindre un jeu</h3>
+                        <h3>Join a game</h3>
                         {lobbyGames.map((game) => (
-                            <li key={game}>
-                                <button className="startmenu_button" onClick={() => joinGame(game)} disabled={!trimmedName || !socket}>
-                                    {game}
+                            <li key={game.id}>
+                                <button className="startmenu_button" onClick={() => joinGame(game.id)}>
+                                    {game.id} ({game.nb_joueurs} players)
                                 </button>
                             </li>
                         ))}

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
-import type { Map as MapLibreMap } from "maplibre-gl";
-import { useMapContext } from "../lib/map/MapContext";
-import { MapOverlay } from "../components/map/MapOverlay";
-import "../styles/map.css";
 import { GameStart } from "../components/map/GameStart";
+import { MapOverlay } from "../components/map/MapOverlay";
+import { useMapContext } from "../lib/map/MapContext";
+import type { Map as MapLibreMap } from "maplibre-gl";
+import { useEffect, useRef, useState } from "react";
+import "../styles/map.css";
 
 type MapLibreModule = typeof import("maplibre-gl");
 
@@ -17,76 +17,15 @@ async function getMapLibre(): Promise<MapLibreModule> {
     return maplibreCache;
 }
 
-// Génère une grille de carrés couvrant le monde
-function generateWorldSquareGrid(size: number = 1) {
-    const features = [];
-    
-    // Couvre le monde de -180 à 180 en longitude et -85 à 85 en latitude
-    const startLat = -85;
-    const endLat = 85;
-    const startLon = -180;
-    const endLon = 180;
-    
-    let r = 0;
-    let lat = startLat;
-    
-    while (lat < endLat) {
-        let q = 0;
-        
-        // Calcule la hauteur ajustée pour cette latitude (correction Mercator)
-        // On réduit la hauteur en s'éloignant de l'équateur pour compenser l'étirement visuel
-        const latRad = (lat * Math.PI) / 180;
-        const latHeight = size * Math.cos(latRad);
-        
-        for (let lon = startLon; lon < endLon; lon += size) {
-            const coords = squareCoordinates(lon, lat, size, latHeight);
-            const squareId = `${q},${r}`;
-            
-            features.push({
-                type: "Feature" as const,
-                properties: { id: squareId, q, r },
-                geometry: {
-                    type: "Polygon" as const,
-                    coordinates: [coords],
-                },
-            });
-            
-            q++;
-        }
-        
-        lat += latHeight;
-        r++;
-    }
-    
-    return {
-        type: "FeatureCollection" as const,
-        features,
-    };
-}
-
-// Calcule les coordonnées d'un carré avec correction de la déformation Mercator
-function squareCoordinates(lon: number, lat: number, width: number, height: number) {
-    return [
-        [lon, lat],
-        [lon + width, lat],
-        [lon + width, lat + height],
-        [lon, lat + height],
-        [lon, lat], // Ferme le polygone
-    ];
-}
-
-export default function AppPage() {
+export default function MapGrid() {
+    const { gameStarted, batimentSelected, selectSquare, setHoveredSquareId, hoveredSquareId, selectedSquare } = useMapContext();
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
-    const {
-        gameStarted,
-        squareCache,
-        selectedSquare,
-        hoveredSquareId,
-        selectSquare,
-        setHoveredSquareId,
-        fetchGameState,
-    } = useMapContext();
+    const TILE_SIZE = 50;
+    const GRID_WIDTH = 40;
+    const GRID_HEIGHT = 30;
 
     // Initialise la carte avec un fond monde
     useEffect(() => {
@@ -107,96 +46,6 @@ export default function AppPage() {
             });
 
             mapRef.current = map;
-
-            map.on("load", async () => {
-                console.log("Carte chargée");
-                
-                // Génère la grille de carrés
-                const squareGrid = generateWorldSquareGrid(0.5);
-                
-                map.addSource("square-grid", {
-                    type: "geojson",
-                    data: squareGrid,
-                    promoteId: "id",
-                });
-
-                // Couche de remplissage des carrés
-                map.addLayer({
-                    id: "square-fill",
-                    type: "fill",
-                    source: "square-grid",
-                    paint: {
-                        "fill-color": [
-                            "case",
-                            ["boolean", ["feature-state", "selected"], false],
-                            "#FFD700",
-                            ["boolean", ["feature-state", "hovered"], false],
-                            "#4A90E2",
-                            "transparent",
-                        ],
-                        "fill-opacity": [
-                            "case",
-                            ["boolean", ["feature-state", "hovered"], false],
-                            0.5,
-                            ["boolean", ["feature-state", "selected"], false],
-                            0.6,
-                            0,
-                        ],
-                    },
-                });
-
-                // Couche de contour
-                map.addLayer({
-                    id: "square-outline",
-                    type: "line",
-                    source: "square-grid",
-                    paint: {
-                        "line-color": [
-                            "case",
-                            ["boolean", ["feature-state", "hovered"], false],
-                            "#88CCEE",
-                            ["boolean", ["feature-state", "selected"], false],
-                            "#FFD700",
-                            "#000",
-                        ],
-                        "line-width": [
-                            "case",
-                            ["boolean", ["feature-state", "selected"], false],
-                            2.5,
-                            ["boolean", ["feature-state", "hovered"], false],
-                            1.5,
-                            0.5,
-                        ],
-                    },
-                });
-
-                // Charge et affiche l'icône de mine en France comme un polygone
-                // On crée un petit carré qui contiendra l'image
-                const mineSize = 0.05; // Taille en degrés (latitude/longitude)
-                const mineLon = 2.3;
-                const mineLat = 48.8;
-                
-                map.addSource('mine-marker', {
-                    type: 'geojson',
-                    data: {
-                        type: 'FeatureCollection',
-                        features: [{
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Polygon',
-                                coordinates: [[
-                                    [mineLon - mineSize, mineLat - mineSize],
-                                    [mineLon + mineSize, mineLat - mineSize],
-                                    [mineLon + mineSize, mineLat + mineSize],
-                                    [mineLon - mineSize, mineLat + mineSize],
-                                    [mineLon - mineSize, mineLat - mineSize]
-                                ]]
-                            },
-                            properties: {}
-                        }]
-                    }
-                });
-            });
         })();
 
         return () => {
@@ -208,134 +57,111 @@ export default function AppPage() {
         };
     }, []);
 
-    // Charge l'état initial
     useEffect(() => {
-        fetchGameState();
-    }, [fetchGameState]);
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-    // Met à jour l'état visuel des carrés en cache
-    useEffect(() => {
-        const map = mapRef.current;
-        if (!map || !map.getSource("square-grid")) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-        squareCache.forEach((square) => {
-            map.setFeatureState(
-                { source: "square-grid", id: square.id },
-                { loaded: true }
-            );
-        });
-    }, [squareCache]);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-    // Met à jour la sélection
-    useEffect(() => {
-        const map = mapRef.current;
-        if (!map || !map.getSource("square-grid")) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Réinitialise tous les états de sélection
-        map.removeFeatureState({ source: "square-grid" });
-        
-        // Réapplique les carrés chargés
-        squareCache.forEach((square) => {
-            map.setFeatureState(
-                { source: "square-grid", id: square.id },
-                { loaded: true }
-            );
-        });
+        for (let q = 0; q < GRID_WIDTH; q++) {
+            for (let r = 0; r < GRID_HEIGHT; r++) {
+                const x = q * TILE_SIZE + viewOffset.x;
+                const y = r * TILE_SIZE + viewOffset.y;
+                const squareId = `${q},${r}`;
 
-        // Applique la sélection
-        if (selectedSquare) {
-            map.setFeatureState(
-                { source: "square-grid", id: selectedSquare.id },
-                { selected: true }
-            );
+                ctx.fillStyle = selectedSquare?.id === squareId
+                    ? "#01ff01"
+                    : hoveredSquareId === squareId
+                    ? "#60fa60"
+                    : "transparent";
+
+                ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                ctx.strokeStyle = "#374151";
+                ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+
+                if (batimentSelected) {
+                    const selectedBatiment = batimentSelected?.find(b => b.id === squareId)?.url;
+                    if (!selectedBatiment) continue;
+                    const image = new Image();
+                    image.src = selectedBatiment;
+                    image.onload = () => {const PAD = 5;
+                        const inner = TILE_SIZE - PAD;
+
+                        const scale = Math.min(inner / image.width, inner / image.height);
+                        const dw = Math.round(image.width * scale);
+                        const dh = Math.round(image.height * scale);
+
+                        const dx = x + 2 + (inner - dw) / 2;
+                        const dy = y + 2 + (inner - dh) / 2;
+
+                        ctx.drawImage(image, dx, dy, dw, dh);
+                    };
+                }
+            }
         }
-    }, [selectedSquare, squareCache]);
+    }, [hoveredSquareId, selectedSquare, viewOffset, batimentSelected]);
 
-    // Gère les interactions
-    useEffect(() => {
-        const map = mapRef.current;
-        if (!map || !map.getSource("square-grid")) return;
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-        const handleClick = (e: any) => {
-            const features = map.queryRenderedFeatures(e.point, {
-                layers: ["square-fill", "square-outline"],
-            });
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left - viewOffset.x;
+        const y = e.clientY - rect.top - viewOffset.y;
 
-            if (features.length > 0) {
-                const squareId = features[0].properties?.id;
-                console.log("Clicked square:", squareId);
-                selectSquare(squareId);
-            } else {
-                selectSquare(null);
-            }
-        };
+        const q = Math.floor(x / TILE_SIZE);
+        const r = Math.floor(y / TILE_SIZE);
 
-        const handleMouseMove = (e: any) => {
-            const features = map.queryRenderedFeatures(e.point, {
-                layers: ["square-fill", "square-outline"],
-            });
+        if (q >= 0 && q < GRID_WIDTH && r >= 0 && r < GRID_HEIGHT) {
+            setHoveredSquareId(`${q},${r}`);
+        } else {
+            setHoveredSquareId(null);
+        }
+    };
 
-            const canvas = map.getCanvas();
-            
-            if (features.length > 0) {
-                canvas.style.cursor = "pointer";
-                const squareId = features[0].properties?.id;
-                
-                // Retire le hover précédent
-                if (hoveredSquareId && hoveredSquareId !== squareId) {
-                    map.setFeatureState(
-                        { source: "square-grid", id: hoveredSquareId },
-                        { hovered: false }
-                    );
-                }
-                
-                // Applique le nouveau hover
-                if (squareId !== hoveredSquareId) {
-                    setHoveredSquareId(squareId);
-                    map.setFeatureState(
-                        { source: "square-grid", id: squareId },
-                        { hovered: true }
-                    );
-                }
-            } else {
-                canvas.style.cursor = "";
-                if (hoveredSquareId) {
-                    map.setFeatureState(
-                        { source: "square-grid", id: hoveredSquareId },
-                        { hovered: false }
-                    );
-                    setHoveredSquareId(null);
-                }
-            }
-        };
+    const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-        map.on("click", handleClick);
-        map.on("mousemove", handleMouseMove);
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left - viewOffset.x;
+        const y = e.clientY - rect.top - viewOffset.y;
 
-        return () => {
-            map.off("click", handleClick);
-            map.off("mousemove", handleMouseMove);
-        };
-    }, [selectSquare, setHoveredSquareId, selectedSquare, hoveredSquareId]);
+        const q = Math.floor(x / TILE_SIZE);
+        const r = Math.floor(y / TILE_SIZE);
 
-    // Resize handler
-    useEffect(() => {
-        const map = mapRef.current;
-        if (!map) return;
-
-        const handleResize = () => map.resize();
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+        if (q >= 0 && q < GRID_WIDTH && r >= 0 && r < GRID_HEIGHT) {
+            selectSquare(`${q},${r}`);
+        }
+    };
 
     return (
-        <div className="map-root">
-            {gameStarted
-                ? <MapOverlay />
-                : <GameStart />
-            }
-            <div ref={containerRef} className="map-canvas" />
-        </div>
-    );
+    <div className="map-root">
+        
+        <div ref={containerRef} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+        
+        <canvas
+            ref={canvasRef}
+            onMouseMove={handleMouseMove}
+            onClick={handleClick}
+            onMouseLeave={() => setHoveredSquareId(null)}
+            style={{ 
+                position: 'absolute', 
+                inset: 0, 
+                zIndex: 10,
+                pointerEvents: 'auto'
+            }}
+        />
+        {gameStarted
+            ? <MapOverlay />
+            : <GameStart />
+        }
+    </div>
+);
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_1" data-name="Calque 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 251.46 166.63">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #6b6b6a;
+      }
+
+      .cls-3 {
+        fill: #5f5e5e;
+        stroke: #8e8e8d;
+        stroke-miterlimit: 10;
+        stroke-width: 8px;
+      }
+
+      .cls-4 {
+        fill: #474746;
+      }
+    </style>
+  </defs>
+  <rect class="cls-3" x="157.86" y="107.54" width="47.71" height="47.71"/>
+  <rect class="cls-4" x="54.4" y="21.66" width="47.71" height="121.5"/>
+  <path class="cls-4" d="M164.27,8.9v60.47h-3.37c-5.14-10.09-15.62-16.99-27.71-16.99s-22.58,6.9-27.71,16.99h-51.08V8.9h109.87Z"/>
+  <rect class="cls-2" x="54.4" y="143.16" width="47.71" height="14.57"/>
+  <rect class="cls-2" x="54.4" y="13.82" width="109.87" height="19.61"/>
+  <path class="cls-3" d="M164.27,30.04c-9.13-5.33-19.74-8.38-31.08-8.38-29.28,0-53.81,20.37-60.19,47.71-1.05,4.53-1.61,9.25-1.61,14.09,0,34.13,27.67,61.79,61.8,61.79s61.79-27.66,61.79-61.79c0-22.8-12.34-42.71-30.71-53.42ZM133.19,114.54c-17.17,0-31.08-13.92-31.08-31.08,0-5.07,1.22-9.86,3.37-14.09,5.13-10.09,15.61-16.99,27.71-16.99s22.57,6.9,27.71,16.99c2.15,4.23,3.37,9.02,3.37,14.09,0,17.16-13.92,31.08-31.08,31.08Z"/>
+  <g>
+    <g id="_Répétition_radiale_" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <path class="cls-1" d="M140.77,94.44l7.01,7.52h0c-8.71,8.11-22.34,7.63-30.45-1.08h0s7.52-7.01,7.52-7.01c4.24,4.55,11.37,4.8,15.92.56Z"/>
+    </g>
+    <g id="_Répétition_radiale_-2" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <path class="cls-1" d="M119.89,84.53l-10.02,2.31h0c-2.67-11.59,4.56-23.16,16.16-25.83h0s2.31,10.02,2.31,10.02c-6.06,1.4-9.84,7.44-8.45,13.5Z"/>
+    </g>
+    <g id="_Répétition_radiale_-3" data-name="&amp;lt;Répétition radiale&amp;gt;">
+      <path class="cls-1" d="M138.9,71.4l3.01-9.83h0c11.38,3.48,17.77,15.53,14.29,26.91h0s-9.83-3.01-9.83-3.01c1.82-5.95-1.52-12.25-7.47-14.07Z"/>
+    </g>
+  </g>
+  <circle class="cls-1" cx="133.19" cy="83.46" r="9.82"/>
+  <circle class="cls-4" cx="133.19" cy="83.45" r="6.71"/>
+  <circle class="cls-1" cx="133.19" cy="83.31" r="2.74"/>
+</svg>
