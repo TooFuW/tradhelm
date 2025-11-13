@@ -1,4 +1,4 @@
-# 🚀 Tradhelm – CASSINI Hackathon Project
+# 🚀 [Tradhelm – CASSINI Hackathon Project](https://taikai.network/fr/cassinihackathons/hackathons/eu-space-consumer-experience/projects/cmh890hy102pcgs2wj7v9q90k/idea)
 
 **Tradhelm** is a project developed for the **CASSINI Hackathon: *EU Space for Consumer Experience***, an innovation challenge organized by the European Union.  
 The hackathon invites participants to create new consumer applications using **European space technologies** such as **Copernicus** (Earth observation) and **Galileo** (satellite navigation).  
@@ -6,39 +6,41 @@ Our project addresses **Challenge #1: “Immersive and interactive consumer appl
 
 ---
 
-## 🌍 What is Tradhelm?
+## 💡 Idea
 
-**Tradhelm** is a **real-time multiplayer web strategy game** where players start from small villages on different continents and grow into powerful nations.  
-Each region’s resources are determined by **real Copernicus satellite data**, defining biomes and the availability of **water, forests, agriculture, minerals, and energy**.  
+Tradhelm is a **real-time multiplayer strategy game** where players start on different continents and grow from small villages into powerful nations. Resources are distributed by biome using **Copernicus satellite data**, so no player has everything they need.  
+The deeper goal is to raise awareness among young people about environmental resources and their depletion.  
+Victory is tied to preservation: players can only succeed by forming alliances, **managing extraction responsibly**, and protecting their honor, earned through cooperation and lost through betrayal.  
+With limited insight into others’ strategies, every decision shapes trust and survival. It’s a management game where interaction and **sustainability** determine success, designed for schools and **educational** organizations.
 
-No player possesses all resources, making **trade, negotiation, and cooperation** essential, or **espionage and betrayal** for the bold.  
-Players earn and lose **honor points** based on their actions, shaping a living world where **trust, strategy, and responsibility** coexist.  
-The player with the highest honor at the end wins.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TooFuW/tradhelm/main/public/eau.svg" width="150" />
+</p>
 
-Tradhelm’s purpose is to **raise environmental awareness** and **teach sustainable management** through gameplay, targeting **educational institutions** as a tool for engaging students in global resource challenges.
 
----
+## 🌐 EU space technologies
 
-## 🛰️ How EU Space Technologies Are Used
+Tradhelm uses **Copernicus Earth observation data** to define biomes and resource availability (agriculture, forests, water, minerals, energy).  
+These **real-world datasets** make gameplay authentic and dynamic, allowing the game to closely **simulate Earth’s ecological and economic systems**.  
+This realism serves both to foster **environmental awareness** and **responsibility** among players and to offer insights into collective behavioral patterns within resource management and cooperation.
 
-- **Copernicus** provides Earth observation data to generate realistic biomes and resource distributions.  
-- These datasets make gameplay authentic and dynamic, closely simulating Earth’s ecosystems.  
-- This realism serves to **foster environmental responsibility** and also enables **behavioral analysis** of cooperation and competition patterns among players.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TooFuW/tradhelm/main/public/nouriture.svg" width="150" />
+</p>
 
-By transforming **Copernicus data** into an **interactive simulation**, Tradhelm merges **strategy, education, and sustainability** into one experience.
 
----
+## 🛰️ EU Space for Consumer Experience
 
-## 🌐 EU Space for Consumer Experience
+The project contributes to **Challenge #1: “Immersive and interactive consumer applications”** by transforming **Copernicus data** into a realistic, global multiplayer simulation.  
+It turns European space technology into an interactive experience that blends strategy, education, and **environmental responsibility**, **promoting awareness** and behavioral understanding through play.
 
-The project contributes to **Challenge #1: “Immersive and interactive consumer applications”** by transforming Copernicus data into a realistic, global multiplayer simulation.  
-It turns **European space technology** into an **interactive experience** that blends **strategy, education, and environmental responsibility**, promoting awareness and behavioral understanding through play.
-
----
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TooFuW/tradhelm/main/public/bois.svg" width="150" />
+</p>
 
 ## 👥 Team
 
-- **Eyrian Muet** – Frontend & Project Manager  
-- **Thimotée Viret** – Backend & Systems Designer  
-- **Enzo Rubagotti** – Frontend & Data Analyst  
-- **Max Lefebvre** – Frontend & Designer
+**Eyrian Muet** – Developer & Project manager. Focuses on frontend, gameplay logic and project management.  
+**Thimotée Viret** – Developer & Project manager. Works on backend, systems design and project management.  
+**Enzo Rubagotti** – Developer & Data Analyst. Integrates and processes spatial data.  
+**Max Lefebvre** – Developer & Designer. Handles UI/UX, visual identity and mockups.
