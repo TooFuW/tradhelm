@@ -1,8 +1,9 @@
 # 🚀 [Tradhelm – CASSINI Hackathon Project](https://taikai.network/fr/cassinihackathons/hackathons/eu-space-consumer-experience/projects/cmh890hy102pcgs2wj7v9q90k/idea)
 
 **Tradhelm** is a project developed for the **CASSINI Hackathon: *EU Space for Consumer Experience***, an innovation challenge organized by the European Union.  
-The hackathon invites participants to create new consumer applications using **European space technologies** such as **Copernicus** (Earth observation) and **Galileo** (satellite navigation).  
-Our project addresses **Challenge #1: “Immersive and interactive consumer applications.”**
+The hackathon invites participants to create new consumer applications using **European space technologies** to reimagine consumer experiences in gaming, sports, and tourism.  
+
+**Backend of the project [here](https://github.com/Superpasteque213/tradelhm-backend).**
 
 ---
 
